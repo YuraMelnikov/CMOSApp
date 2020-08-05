@@ -9,9 +9,7 @@
         android:minHeight="25px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ordersRecyclerView" 
-        >
-
+        android:id="@+id/ordersRecyclerView">
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

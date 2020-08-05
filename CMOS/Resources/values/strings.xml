@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">CMOS</string>
     <string name="action_settings">Settings</string>
+    <string name="testNumberTN">Settings</string>
+    <string name="testPercent">Settings</string>
+    <string name="testOrderId">Settings</string>
+    <string name="testCustomer">Settings</string>
+    <string name="testPositions">Settings</string>
 </resources>

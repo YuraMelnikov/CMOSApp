@@ -31,10 +31,10 @@ namespace CMOS.Adapter
         {
             var holder = viewHolder as OrdersAdapterViewHolder;
             holder.numberTN.Text = Items[position].NumberTN;
-            holder.positions.Text = Items[position].Positions;
+            holder.positions.Text = Items[position].PositionName;
             holder.customer.Text = Items[position].Customer;
-            holder.orderId.Text = Items[position].OrderId;
-            holder.percent.Text = Items[position].Percent;
+            holder.orderId.Text = Items[position].Id;
+            holder.percent.Text = Items[position].PercentComplited;
         }
 
         public override int ItemCount => Items.Count;

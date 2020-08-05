@@ -3,9 +3,9 @@
     public class Order
     {
         public string NumberTN { get; set; }
-        public string Positions { get; set; }
+        public string PositionName { get; set; }
         public string Customer { get; set; }
-        public string OrderId { get; set; }
-        public string Percent { get; set; }
+        public string Id { get; set; }
+        public string PercentComplited { get; set; }
     }
 }

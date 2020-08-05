@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:gravity="center"
-            android:text="ПТМЦ №: 1234"
+            android:text="@string/testNumberTN"
             android:textStyle="bold"
             android:textSize="18sp"
         />
@@ -22,14 +22,14 @@
             android:id="@+id/positions"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="2012-РУНН; 2013-РУНН"
+            android:text="@string/testPositions"
             android:layout_below="@+id/numberTN"
         />
         <TextView
             android:id="@+id/customer"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="Гратиус"
+            android:text="@string/testCustomer"
             android:layout_alignParentRight="true"
         />
     </RelativeLayout>
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:gravity="center"
-            android:text="Заказ №: 4567"
+            android:text="@string/testOrderId"
             android:textStyle="bold"
             android:layout_alignParentBottom="true"
             android:textColor="@android:color/holo_green_dark"
@@ -50,7 +50,7 @@
             android:id="@+id/percent"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="90%"
+            android:text="@string/testPercent"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:textColor="@android:color/holo_red_dark"
@@ -58,7 +58,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#e2e2e2"
+            android:background="@color/colorBackground"
             android:layout_alignParentBottom="true"/>
     </RelativeLayout>
 </LinearLayout>

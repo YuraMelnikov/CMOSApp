@@ -7,6 +7,10 @@ using Android.Support.V7.Widget;
 using CMOS.Data_Models;
 using CMOS.Adapter;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Net;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace CMOS
 {
@@ -36,27 +40,20 @@ namespace CMOS
         private void CreateData()
         {
             ordersList = new List<Order>();
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 1233", Customer = "Эковуд", OrderId = "№ заказа: 48", Percent = "0%", Positions = "2015 - Модуль; 2016 - Модуль; 2017 - Модуль; 2018 - Модуль;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 5633", Customer = "Армис", OrderId = "№ заказа: 12", Percent = "9%", Positions = "2085-РУНН" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 4578", Customer = "Гратиус", OrderId = "№ заказа: 45", Percent = "98%", Positions = "2153-Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 2467", Customer = "Эковуд", OrderId = "№ заказа: 486", Percent = "90%", Positions = "2369-Модуль; 2015 - ШОТ;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 4534", Customer = "Эковуд", OrderId = "№ заказа: 5614", Percent = "15%", Positions = "2015-КРМ" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 2235", Customer = "Армис", OrderId = "№ заказа: 12", Percent = "18%", Positions = "2015 - Модуль; 2016 - Модуль;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 4531", Customer = "Эковуд", OrderId = "№ заказа: 1131", Percent = "0%", Positions = "2015 - ШОТ" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 1111", Customer = "Армис", OrderId = "№ заказа: 466", Percent = "13%", Positions = "2015 - ШТМ" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 4538", Customer = "Гратиус", OrderId = "№ заказа: 224", Percent = "100%", Positions = "2015 - Модуль; 2016 - Модуль;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 5200", Customer = "Эковуд", OrderId = "№ заказа: 4537", Percent = "99%", Positions = "2015 - Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 1237", Customer = "Армис", OrderId = "№ заказа: 78", Percent = "13%", Positions = "2015 - Модуль; 2015 - ШОТ;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 1112", Customer = "Эковуд", OrderId = "№ заказа: 42", Percent = "31%", Positions = "2015 - Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 3537", Customer = "Гратиус", OrderId = "№ заказа: 33", Percent = "52%", Positions = "2015 - ШОТ; 2015 - ШОТ;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 5344", Customer = "Армис", OrderId = "№ заказа: 6449", Percent = "64%", Positions = "2015 - Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 3969", Customer = "Эковуд", OrderId = "№ заказа: 45", Percent = "69%", Positions = "2015 - Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 7531", Customer = "Армис", OrderId = "№ заказа: 246", Percent = "87%", Positions = "2015 - Модуль; 2016 - Модуль;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 9942", Customer = "Гратиус", OrderId = "№ заказа: 254", Percent = "54%", Positions = "2015 - ШОТ" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 3145", Customer = "Эковуд", OrderId = "№ заказа: 250", Percent = "66%", Positions = "2015 - ШОТ; 2015 - ШОТ" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 1235", Customer = "Армис", OrderId = "№ заказа: 630", Percent = "64%", Positions = "2015 - Модуль" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 4578", Customer = "Эковуд", OrderId = "№ заказа: 2545", Percent = "65%", Positions = "2015 - Модуль; 2016 - Модуль;" });
-            ordersList.Add(new Order { NumberTN = "№ ПТМЦ: 5436", Customer = "Гратиус", OrderId = "№ заказа: 123", Percent = "25%", Positions = "2015 - Модуль" });
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetTableNoClothingOrder");
+            JObject googleSearch = JObject.Parse(json);
+            IList<JToken> results = googleSearch["data"].Children().ToList();
+            foreach (JToken result in results)
+            {
+                Order searchResult = result.ToObject<Order>();
+                searchResult.PositionName = searchResult.PositionName.Replace("\r\n\n", ";");
+                searchResult.PercentComplited += "%";
+                searchResult.Id = "Заказ №: " + searchResult.Id;
+                searchResult.NumberTN = "ПТМЦ №: " + searchResult.NumberTN;
+                ordersList.Add(searchResult);
+            }
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
