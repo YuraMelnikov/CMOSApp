@@ -1,9 +1,19 @@
 <resources>
     <string name="app_name">CMOS</string>
     <string name="action_settings">Settings</string>
-    <string name="testNumberTN">Settings</string>
-    <string name="testPercent">Settings</string>
-    <string name="testOrderId">Settings</string>
-    <string name="testCustomer">Settings</string>
-    <string name="testPositions">Settings</string>
+    <string name="testNumberTN">ПТМЦ №: 2365</string>
+    <string name="testPercent">90%</string>
+    <string name="testOrderId">Заказ № 125</string>
+    <string name="testCustomer">Эковуд</string>
+    <string name="testPositions">2015 - Модуль;</string>
+    <string name="testMaterialName">"PCAM_0744_000_45-600-F-Кронштейн"</string>
+    <string name="testMaterialShortName">"Кронштейн"</string>
+    <string name="testMaterialCode">54076</string>
+    <string name="testMaterialWeight">Вес: 56.6</string>
+    <string name="testMaterialNorm">15</string>
+    <string name="testMaterialRate">1</string>
+    <string name="testMaterialLoading">+14</string>
+    <string name="testMaterialOrder">ПЗ №: 2015 - Модуль</string>
+    <string name="testMaterialColor">RAL7001</string>
+    <string name="testMaterialId">122546</string>
 </resources>

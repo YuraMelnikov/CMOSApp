@@ -2,7 +2,6 @@
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Runtime;
-using Android.Widget;
 using Android.Support.V7.Widget;
 using CMOS.Data_Models;
 using CMOS.Adapter;
@@ -11,6 +10,8 @@ using Newtonsoft.Json;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Android.Widget;
+using System;
 
 namespace CMOS
 {
@@ -19,25 +20,35 @@ namespace CMOS
     {
         RecyclerView ordersRecyclerView;
         List<Order> ordersList;
+        List<Position> positionsList;
+        OrdersAdapter adapterOrder;
+        PositionsAdapter adapterPosition;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            //Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
-            CreateData();
-            SetupRecyclerView();
+            CreateOrdersData();
+            SetupOrdersRecyclerView();
         }
 
-        private void SetupRecyclerView()
+        private void SetupOrdersRecyclerView()
         {
-            ordersRecyclerView.SetLayoutManager(new Android.Support.V7.Widget.LinearLayoutManager(ordersRecyclerView.Context));
-            OrdersAdapter adapter = new OrdersAdapter(ordersList);
-            ordersRecyclerView.SetAdapter(adapter);
+            ordersRecyclerView.SetLayoutManager(new LinearLayoutManager(ordersRecyclerView.Context));
+            adapterOrder = new OrdersAdapter(ordersList);
+            adapterOrder.ItemClick += OnItemClick;
+            ordersRecyclerView.SetAdapter(adapterOrder);
         }
 
-        private void CreateData()
+        private void SetupPositionsRecyclerView()
+        {
+            ordersRecyclerView.SetLayoutManager(new LinearLayoutManager(ordersRecyclerView.Context));
+            adapterPosition = new PositionsAdapter(positionsList);
+            ordersRecyclerView.SetAdapter(adapterPosition);
+        }
+
+        private void CreateOrdersData()
         {
             ordersList = new List<Order>();
             JsonSerializer serializer = new JsonSerializer();
@@ -56,10 +67,32 @@ namespace CMOS
             }
         }
 
+        private void CreatePositionsData(int id)
+        {
+            positionsList = new List<Position>();
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetPositionsPreorderApi/" + id.ToString());
+            JObject googleSearch = JObject.Parse(json);
+            IList<JToken> results = googleSearch["data"].Children().ToList();
+            foreach (JToken result in results)
+            {
+                Position searchResult = result.ToObject<Position>();
+                positionsList.Add(searchResult);
+            }
+        }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        void OnItemClick(object sender, int position)
+        {
+            Toast.MakeText(this, "This is photo number " + ordersList[position].Id, ToastLength.Short).Show();
+            CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
+            SetupPositionsRecyclerView();
         }
     }
 }

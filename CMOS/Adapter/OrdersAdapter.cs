@@ -10,9 +10,9 @@ namespace CMOS.Adapter
 {
     class OrdersAdapter : RecyclerView.Adapter
     {
-        public event EventHandler<OrdersAdapterClickEventArgs> ItemClick;
         public event EventHandler<OrdersAdapterClickEventArgs> ItemLongClick;
         List<Order> Items;
+        public event EventHandler<int> ItemClick;
 
         public OrdersAdapter(List<Order> Data)
         {
@@ -26,7 +26,6 @@ namespace CMOS.Adapter
             return vh;
         }
 
-        // Replace the contents of a view (invoked by the layout manager)
         public override void OnBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
         {
             var holder = viewHolder as OrdersAdapterViewHolder;
@@ -39,9 +38,13 @@ namespace CMOS.Adapter
 
         public override int ItemCount => Items.Count;
 
-        void OnClick(OrdersAdapterClickEventArgs args) => ItemClick?.Invoke(this, args);
-        void OnLongClick(OrdersAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
+        void OnClick(int position)
+        {
+            if (ItemClick != null)
+                ItemClick(this, position);
+        }
 
+        void OnLongClick(OrdersAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
     }
 
     public class OrdersAdapterViewHolder : RecyclerView.ViewHolder
@@ -52,14 +55,14 @@ namespace CMOS.Adapter
         public TextView orderId { get; set; }
         public TextView percent { get; set; }
 
-        public OrdersAdapterViewHolder(View itemView, Action<OrdersAdapterClickEventArgs> clickListener, Action<OrdersAdapterClickEventArgs> longClickListener) : base(itemView)
+        public OrdersAdapterViewHolder(View itemView, Action<int> clickListener, Action<OrdersAdapterClickEventArgs> longClickListener) : base(itemView)
         {
             numberTN = (TextView)itemView.FindViewById(Resource.Id.numberTN);
             positions = (TextView)itemView.FindViewById(Resource.Id.positions);
             customer = (TextView)itemView.FindViewById(Resource.Id.customer);
             orderId = (TextView)itemView.FindViewById(Resource.Id.orderId);
             percent = (TextView)itemView.FindViewById(Resource.Id.percent);
-            itemView.Click += (sender, e) => clickListener(new OrdersAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
+            itemView.Click += (sender, e) => clickListener(base.LayoutPosition);
             itemView.LongClick += (sender, e) => longClickListener(new OrdersAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
         }
     }
