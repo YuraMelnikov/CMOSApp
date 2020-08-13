@@ -90,7 +90,7 @@ namespace CMOS
 
         void OnItemClick(object sender, int position)
         {
-            Toast.MakeText(this, "This is photo number " + ordersList[position].Id, ToastLength.Short).Show();
+            Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();
         }
