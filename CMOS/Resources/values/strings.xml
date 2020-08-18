@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CMOS</string>
+    <string name="app_name">Документы поступления ТМЦ</string>
     <string name="action_settings">Settings</string>
     <string name="testNumberTN">ПТМЦ №: 2365</string>
     <string name="testPercent">90%</string>
@@ -16,4 +16,6 @@
     <string name="testMaterialOrder">ПЗ №: 2015 - Модуль</string>
     <string name="testMaterialColor">RAL7001</string>
     <string name="testMaterialId">122546</string>
+    <string name="descBtnClose">Закрыть</string>
+    <string name="descBtnApplay">Записать</string>
 </resources>

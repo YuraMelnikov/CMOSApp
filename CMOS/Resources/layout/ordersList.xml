@@ -21,20 +21,21 @@
                     android:gravity="center"
                     android:text="@string/testNumberTN"
                     android:textStyle="bold"
-                    android:textColor="#425967"
+                    android:textColor="@android:color/black"
                     android:textSize="18sp"/>
                 <TextView
                     android:id="@+id/positions"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:text="@string/testPositions"
+                    android:textColor="@color/colorTextBool"
                     android:layout_below="@+id/numberTN"/>
                 <TextView
                     android:id="@+id/customer"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:text="@string/testCustomer"
-                    android:textColor="#425967"
+                    android:textColor="@color/colorTextBool"
                     android:layout_alignParentRight="true"/>
                 <TextView
                     android:id="@+id/orderId"
@@ -43,7 +44,7 @@
                     android:gravity="center"
                     android:text="@string/testOrderId"
                     android:textStyle="bold"
-                    android:textColor= "#7e7e7e"
+                    android:textColor="@android:color/black"
                     android:layout_below="@+id/positions"/>
                 <TextView
                     android:id="@+id/percent"
@@ -51,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:text="@string/testPercent"
                     android:layout_alignParentRight="true"
-                    android:textColor="@android:color/holo_red_dark"
+                    android:textColor="#910000"
                     android:layout_below="@+id/positions"/>
             </RelativeLayout>
         </LinearLayout>

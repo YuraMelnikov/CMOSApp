@@ -2,23 +2,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbarSettings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#e1d1b2" >
-        <ImageButton
-              android:id="@+id/buttonRemove"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:src="@drawable/delete" />
-        <ImageButton
-              android:id="@+id/buttonAplay"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="right"
-              android:src="@drawable/checkmark" />
-    </android.support.v7.widget.Toolbar>
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
