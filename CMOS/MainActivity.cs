@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 using Android.Widget;
 using System;
+using Android.Views;
 
 namespace CMOS
 {
@@ -23,12 +24,18 @@ namespace CMOS
         List<Position> positionsList;
         OrdersAdapter adapterOrder;
         PositionsAdapter adapterPosition;
+        ImageButton buttonRemove;
+        ImageButton buttonAplay;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
+            buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
+            buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
+            buttonRemove.Visibility = ViewStates.Invisible;
+            buttonAplay.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();
         }
@@ -45,6 +52,7 @@ namespace CMOS
         {
             ordersRecyclerView.SetLayoutManager(new LinearLayoutManager(ordersRecyclerView.Context));
             adapterPosition = new PositionsAdapter(positionsList);
+            adapterPosition.ItemClick += OnPositionClick;
             ordersRecyclerView.SetAdapter(adapterPosition);
         }
 
@@ -90,9 +98,16 @@ namespace CMOS
 
         void OnItemClick(object sender, int position)
         {
+            buttonRemove.Visibility = ViewStates.Visible;
+            buttonAplay.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();
+        }
+
+        void OnPositionClick(object sender, int position)
+        {
+
         }
     }
 }

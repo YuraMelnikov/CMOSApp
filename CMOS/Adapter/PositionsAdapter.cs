@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Android.Views;
 using Android.Widget;
 using Android.Support.V7.Widget;
@@ -10,9 +9,9 @@ namespace CMOS.Adapter
 {
     class PositionsAdapter : RecyclerView.Adapter
     {
-        public event EventHandler<PositionsAdapterClickEventArgs> ItemClick;
         public event EventHandler<PositionsAdapterClickEventArgs> ItemLongClick;
         List<Position> Items;
+        public event EventHandler<int> ItemClick;
 
         public PositionsAdapter(List<Position> Data)
         {
@@ -63,12 +62,18 @@ namespace CMOS.Adapter
                 holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#CBD0CC")));
             else if (holder.color.Text == "RAL7036")
                 holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#9A9697")));
+            else
+                holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#000000")));
             holder.id.Text = Items[position].Id.ToString();
         }
 
         public override int ItemCount => Items.Count;
 
-        void OnClick(PositionsAdapterClickEventArgs args) => ItemClick?.Invoke(this, args);
+        void OnClick(int position)
+        {
+            if (ItemClick != null)
+                ItemClick(this, position);
+        }
         void OnLongClick(PositionsAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
 
     }
@@ -86,7 +91,7 @@ namespace CMOS.Adapter
         public TextView id { get; set; }
         public CardView cardItem { get; set; }
 
-        public PositionsAdapterViewHolder(View itemView, Action<PositionsAdapterClickEventArgs> clickListener, Action<PositionsAdapterClickEventArgs> longClickListener) : base(itemView)
+        public PositionsAdapterViewHolder(View itemView, Action<int> clickListener, Action<PositionsAdapterClickEventArgs> longClickListener) : base(itemView)
         {
             name = (TextView)itemView.FindViewById(Resource.Id.name);
             code = (TextView)itemView.FindViewById(Resource.Id.code);
@@ -98,7 +103,7 @@ namespace CMOS.Adapter
             color = (TextView)itemView.FindViewById(Resource.Id.color);
             id = (TextView)itemView.FindViewById(Resource.Id.id);
             cardItem = (CardView)itemView.FindViewById(Resource.Id.cardItem);
-            itemView.Click += (sender, e) => clickListener(new PositionsAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
+            itemView.Click += (sender, e) => clickListener(base.LayoutPosition);
             itemView.LongClick += (sender, e) => longClickListener(new PositionsAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
         }
     }
