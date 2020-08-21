@@ -26,6 +26,7 @@ namespace CMOS
         PositionsAdapter adapterPosition;
         ImageButton buttonRemove;
         ImageButton buttonAplay;
+        Android.Support.V7.Widget.Toolbar toolbarInputData;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -34,6 +35,8 @@ namespace CMOS
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
+            toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
+            toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
             CreateOrdersData();
@@ -100,6 +103,7 @@ namespace CMOS
         {
             buttonRemove.Visibility = ViewStates.Visible;
             buttonAplay.Visibility = ViewStates.Visible;
+            toolbarInputData.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();

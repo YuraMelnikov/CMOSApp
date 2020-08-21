@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbarSettings"
@@ -48,5 +48,41 @@
             android:id="@+id/ordersRecyclerView"
             android:layout_below="@+id/editTextCode">
         </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarInputData"
+            android:layout_width="match_parent"
+            android:background="@color/colorToolbar"
+            android:layout_height="45sp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:id="@+id/barcodeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:ems="10"
+                    android:singleLine="true"
+                    android:cursorVisible="false"
+                    android:background="#fff"
+                    android:inputType="none"
+                    android:textColor="#000000"/>
+                <EditText
+                    android:id="@+id/quentityText"
+                    android:layout_width="78.5dp"
+                    android:layout_height="30dp"
+                    android:ems="10"
+                    android:singleLine="true"
+                    android:cursorVisible="false"
+                    android:background="#fff"
+                    android:inputType="none"
+                    android:layout_alignParentRight="true"
+                    android:textColor="#000000"/>
+            </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
     </LinearLayout>
 </RelativeLayout>

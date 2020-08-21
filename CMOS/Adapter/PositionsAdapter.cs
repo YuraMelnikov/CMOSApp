@@ -62,6 +62,8 @@ namespace CMOS.Adapter
                 holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#CBD0CC")));
             else if (holder.color.Text == "RAL7036")
                 holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#9A9697")));
+            else if (holder.color.Text == "RAL ")
+                holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#ffffff")));
             else
                 holder.color.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#000000")));
             holder.id.Text = Items[position].Id.ToString();
