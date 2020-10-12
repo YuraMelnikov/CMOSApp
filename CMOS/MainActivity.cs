@@ -19,26 +19,29 @@ namespace CMOS
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        RecyclerView ordersRecyclerView;
-        List<Order> ordersList;
-        List<Position> positionsList;
-        OrdersAdapter adapterOrder;
-        PositionsAdapter adapterPosition;
-        ImageButton buttonRemove;
-        ImageButton buttonAplay;
-        Android.Support.V7.Widget.Toolbar toolbarInputData;
+        private RecyclerView ordersRecyclerView;
+        private List<Order> ordersList;
+        private List<Position> positionsList;
+        private OrdersAdapter adapterOrder;
+        private PositionsAdapter adapterPosition;
+        private ImageButton buttonRemove;
+        private ImageButton buttonAplay;
+        private Android.Support.V7.Widget.Toolbar toolbarInputData;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
             toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
+
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
+
             CreateOrdersData();
             SetupOrdersRecyclerView();
         }
@@ -64,13 +67,13 @@ namespace CMOS
             ordersList = new List<Order>();
             JsonSerializer serializer = new JsonSerializer();
             serializer.NullValueHandling = NullValueHandling.Ignore;
-            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetTableNoClothingOrder");
+            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetTableNoClothingOrderApi");
             JObject googleSearch = JObject.Parse(json);
             IList<JToken> results = googleSearch["data"].Children().ToList();
             foreach (JToken result in results)
             {
                 Order searchResult = result.ToObject<Order>();
-                searchResult.PositionName = searchResult.PositionName.Replace("\r\n\n", ";");
+                searchResult.PositionName = searchResult.PositionName;
                 searchResult.PercentComplited += "%";
                 searchResult.Id = "Заказ №: " + searchResult.Id;
                 searchResult.NumberTN = "ПТМЦ №: " + searchResult.NumberTN;
