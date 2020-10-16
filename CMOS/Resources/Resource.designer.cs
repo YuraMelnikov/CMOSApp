@@ -3331,70 +3331,70 @@ namespace CMOS
 			public const int auto = 2131230751;
 			
 			// aapt resource value: 0x7F080020
-			public const int barcodeText = 2131230752;
+			public const int beginning = 2131230752;
 			
 			// aapt resource value: 0x7F080021
-			public const int beginning = 2131230753;
+			public const int blocking = 2131230753;
 			
 			// aapt resource value: 0x7F080022
-			public const int blocking = 2131230754;
+			public const int bottom = 2131230754;
 			
 			// aapt resource value: 0x7F080023
-			public const int bottom = 2131230755;
-			
-			// aapt resource value: 0x7F080024
-			public const int browser_actions_header_text = 2131230756;
-			
-			// aapt resource value: 0x7F080027
-			public const int browser_actions_menu_items = 2131230759;
-			
-			// aapt resource value: 0x7F080025
-			public const int browser_actions_menu_item_icon = 2131230757;
+			public const int browser_actions_header_text = 2131230755;
 			
 			// aapt resource value: 0x7F080026
-			public const int browser_actions_menu_item_text = 2131230758;
+			public const int browser_actions_menu_items = 2131230758;
+			
+			// aapt resource value: 0x7F080024
+			public const int browser_actions_menu_item_icon = 2131230756;
+			
+			// aapt resource value: 0x7F080025
+			public const int browser_actions_menu_item_text = 2131230757;
+			
+			// aapt resource value: 0x7F080027
+			public const int browser_actions_menu_view = 2131230759;
 			
 			// aapt resource value: 0x7F080028
-			public const int browser_actions_menu_view = 2131230760;
+			public const int buttonAplay = 2131230760;
 			
 			// aapt resource value: 0x7F080029
-			public const int buttonAplay = 2131230761;
+			public const int buttonPanel = 2131230761;
 			
 			// aapt resource value: 0x7F08002A
-			public const int buttonPanel = 2131230762;
+			public const int buttonRemove = 2131230762;
 			
 			// aapt resource value: 0x7F08002B
-			public const int buttonRemove = 2131230763;
+			public const int cancel_action = 2131230763;
 			
 			// aapt resource value: 0x7F08002C
-			public const int cancel_action = 2131230764;
+			public const int cardItem = 2131230764;
 			
 			// aapt resource value: 0x7F08002D
-			public const int cardItem = 2131230765;
+			public const int center = 2131230765;
 			
 			// aapt resource value: 0x7F08002E
-			public const int center = 2131230766;
+			public const int center_horizontal = 2131230766;
 			
 			// aapt resource value: 0x7F08002F
-			public const int center_horizontal = 2131230767;
+			public const int center_vertical = 2131230767;
 			
 			// aapt resource value: 0x7F080030
-			public const int center_vertical = 2131230768;
+			public const int checkbox = 2131230768;
 			
 			// aapt resource value: 0x7F080031
-			public const int checkbox = 2131230769;
+			public const int chronometer = 2131230769;
 			
 			// aapt resource value: 0x7F080032
-			public const int chronometer = 2131230770;
+			public const int clip_horizontal = 2131230770;
 			
 			// aapt resource value: 0x7F080033
-			public const int clip_horizontal = 2131230771;
+			public const int clip_vertical = 2131230771;
 			
 			// aapt resource value: 0x7F080034
-			public const int clip_vertical = 2131230772;
+			public const int code = 2131230772;
 			
 			// aapt resource value: 0x7F080035
-			public const int code = 2131230773;
+			public const int codeInput = 2131230773;
 			
 			// aapt resource value: 0x7F080036
 			public const int collapseActionView = 2131230774;
@@ -3652,7 +3652,7 @@ namespace CMOS
 			public const int progress_horizontal = 2131230855;
 			
 			// aapt resource value: 0x7F080088
-			public const int quentityText = 2131230856;
+			public const int quentityInput = 2131230856;
 			
 			// aapt resource value: 0x7F080089
 			public const int radio = 2131230857;
@@ -3901,10 +3901,13 @@ namespace CMOS
 			public const int weight = 2131230936;
 			
 			// aapt resource value: 0x7F0800D9
-			public const int withText = 2131230937;
+			public const int weightInput = 2131230937;
 			
 			// aapt resource value: 0x7F0800DA
-			public const int wrap_content = 2131230938;
+			public const int withText = 2131230938;
+			
+			// aapt resource value: 0x7F0800DB
+			public const int wrap_content = 2131230939;
 			
 			static Id()
 			{

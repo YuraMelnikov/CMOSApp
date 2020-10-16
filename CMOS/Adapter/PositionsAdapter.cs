@@ -4,6 +4,7 @@ using Android.Widget;
 using Android.Support.V7.Widget;
 using System.Collections.Generic;
 using CMOS.Data_Models;
+using Android.Graphics;
 
 namespace CMOS.Adapter
 {
@@ -31,12 +32,26 @@ namespace CMOS.Adapter
             holder.name.Text = Items[position].Name;
             holder.code.Text = Items[position].Code;
             holder.weight.Text = Items[position].Weight;
+
+            if (holder.weight.Text == "0")
+            {
+                holder.weight.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#910000")));
+                var typeface = Typeface.Create("<FONT FAMILY NAME>", Android.Graphics.TypefaceStyle.Bold);
+                holder.weight.Typeface = typeface;
+            }
             holder.shortName.Text = Items[position].ShortName;
             holder.norm.Text = Items[position].Norm;
             holder.rate.Text = Items[position].Rate;
             if (holder.norm.Text == holder.rate.Text)
             {
-                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#b6d7a8"));
+                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9ED9CC"));
+            }
+            else if (holder.rate.Text != "0")
+            {
+                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#F3DB74"));
+            }
+            else
+            {
             }
             holder.order.Text = Items[position].Order;
             holder.color.Text = Items[position].Color;

@@ -3,8 +3,8 @@
     <color name="colorPrimary">#2c3e50</color>
     <color name="colorPrimaryDark">#1B3147</color>
     <color name="colorAccent">#3498db</color>
-    <color name="colorToolbar">#2ebb55</color>
-    <color name="colorBackground">#f0f2f1</color>
-    <color name="colorBtnToolbar">#fbfbfb</color>
+    <color name="colorToolbar">#2CAE66</color>
+    <color name="colorBackground">#FCF6F5</color>
+    <color name="colorBtnToolbar">#FCF6F5</color>
     <color name="colorTextBool">#35383d</color>
 </resources>

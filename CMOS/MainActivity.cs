@@ -19,6 +19,7 @@ namespace CMOS
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
+        private TextView numberTNForOrderlist;
         private RecyclerView ordersRecyclerView;
         private List<Order> ordersList;
         private List<Position> positionsList;
@@ -33,6 +34,7 @@ namespace CMOS
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
+            numberTNForOrderlist = (TextView)FindViewById(Resource.Id.numberTNForOrderlist);
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
@@ -42,8 +44,14 @@ namespace CMOS
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
 
-            CreateOrdersData();
-            SetupOrdersRecyclerView();
+            buttonRemove.Click += Btn_Click;
+
+            InitializingOrdersList();
+        }
+
+        private void Btn_Click(object sender, EventArgs e)
+        {
+            InitializingOrdersList();
         }
 
         private void SetupOrdersRecyclerView()
@@ -102,6 +110,16 @@ namespace CMOS
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
+        private void InitializingOrdersList()
+        {
+            toolbarInputData.Visibility = ViewStates.Invisible;
+            buttonRemove.Visibility = ViewStates.Invisible;
+            buttonAplay.Visibility = ViewStates.Invisible;
+            CreateOrdersData();
+            SetupOrdersRecyclerView();
+            numberTNForOrderlist.Text = "         Документы поступления";
+        }
+
         void OnItemClick(object sender, int position)
         {
             buttonRemove.Visibility = ViewStates.Visible;
@@ -110,6 +128,7 @@ namespace CMOS
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();
+            numberTNForOrderlist.Text = "         " + ordersList[position].NumberTN;
         }
 
         void OnPositionClick(object sender, int position)
