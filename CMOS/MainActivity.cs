@@ -1,7 +1,6 @@
 ﻿using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
-using Android.Runtime;
 using Android.Support.V7.Widget;
 using CMOS.Data_Models;
 using CMOS.Adapter;
@@ -13,15 +12,17 @@ using System.Linq;
 using Android.Widget;
 using System;
 using Android.Views;
-using Symbol.XamarinEMDK;
-using System.IO;
-using System.Xml;
+using CMOS.Contract;
+using CMOS.ScannerManager;
+using Symbol.XamarinEMDK.Barcode;
 
 namespace CMOS
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity, EMDKManager.IEMDKListener
+    public class MainActivity : AppCompatActivity, View.IOnClickListener
     {
+        IBarcodeScannerManager _scannerManager;
+
         private TextView numberTNForOrderlist;
         private RecyclerView ordersRecyclerView;
         private List<Order> ordersList;
@@ -32,12 +33,6 @@ namespace CMOS
         private ImageButton buttonAplay;
         private Android.Support.V7.Widget.Toolbar toolbarInputData;
 
-        private EMDKManager emdkManager = null;
-        private ProfileManager profileManager = null;
-        private EditText codeInput = null;
-
-        private Button button1 = null;
-        private int count;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -49,23 +44,12 @@ namespace CMOS
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
             toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
-            codeInput = (EditText)FindViewById(Resource.Id.codeInput);
 
+            _scannerManager = new BarcodeScannerManager(this);
+            _scannerManager.ScanReceived += OnScanReceived;
 
-            EMDKResults results = EMDKManager.GetEMDKManager(ApplicationContext, this);
-            if (results.StatusCode != EMDKResults.STATUS_CODE.Success)
-            {
-                codeInput.SetText("Failed", TextView.BufferType.Normal);
-            }
-            else
-            {
-                codeInput.SetText("00000", TextView.BufferType.Normal);
-            }
-
-            count = 0;
-            button1 = (Button)FindViewById(Resource.Id.button1);
-            button1.Click += delegate { button1.Text = string.Format("{0} clicks!", count++); };
-            button1.Click += delegate { ApplyProfile(); };
+            var toggleScannerButton = FindViewById<Button>(Resource.Id.toggle_scanner_button);
+            toggleScannerButton.SetOnClickListener(this);
 
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
@@ -74,64 +58,6 @@ namespace CMOS
             buttonRemove.Click += Btn_Click;
 
             InitializingOrdersList();
-        }
-
-        private void ApplyProfile()
-        {
-            if (profileManager != null)
-            {
-                EMDKResults results = profileManager.ProcessProfile("ClockProfile", ProfileManager.PROFILE_FLAG.Set, new String[] { "" });
-                if (results.StatusCode == EMDKResults.STATUS_CODE.Success)
-                {
-                    codeInput.Text = "applied";
-                }
-                else if (results.StatusCode == EMDKResults.STATUS_CODE.CheckXml)
-                {
-                    using (XmlReader reader = XmlReader.Create(new StringReader(results.StatusString)))
-                    {
-                        String checkXmlStatus = "Status:\n\n";
-                        while (reader.Read())
-                        {
-                            switch (reader.NodeType)
-                            {
-                                case XmlNodeType.Element:
-                                    switch (reader.Name)
-                                    {
-                                        case "parm-error":
-                                            checkXmlStatus += "Parm Error:\n";
-                                            checkXmlStatus += reader.GetAttribute("name") + " - ";
-                                            checkXmlStatus += reader.GetAttribute("desc") + "\n\n";
-                                            break;
-                                        case "characteristic-error":
-                                            checkXmlStatus += "characteristic Error:\n";
-                                            checkXmlStatus += reader.GetAttribute("type") + " - ";
-                                            checkXmlStatus += reader.GetAttribute("desc") + "\n\n";
-                                            break;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        if (checkXmlStatus == "Status:\n\n")
-                        {
-                            codeInput.Text = "St Ok.";
-                        }
-                        else
-                        {
-                            codeInput.Text = checkXmlStatus;
-                        }
-
-                    }
-                }
-                else
-                {
-                    codeInput.Text = "faild" + results.StatusCode;
-                }
-            }
-            else
-            {
-                codeInput.Text = "is null";
-            }
         }
 
         private void Btn_Click(object sender, EventArgs e)
@@ -189,12 +115,6 @@ namespace CMOS
             }
         }
 
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
-        {
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
         private void InitializingOrdersList()
         {
             toolbarInputData.Visibility = ViewStates.Invisible;
@@ -221,42 +141,38 @@ namespace CMOS
 
         }
 
-        public void OnClosed()
-        {
-            codeInput.Text = "failed";
-            if (emdkManager != null)
-            {
-                emdkManager.Release();
-                emdkManager = null;
-            }
-        }
-
-        public void OnOpened(EMDKManager emdkManager)
-        {
-            codeInput.Text = "Opened";
-            this.emdkManager = emdkManager;
-            try
-            {
-                profileManager = (ProfileManager)emdkManager.GetInstance(EMDKManager.FEATURE_TYPE.Profile);
-            }
-            catch (Exception e)
-            {
-                codeInput.Text = e.Message;
-            }
-        }
-
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            if (profileManager != null)
+
+            _scannerManager.ScanReceived -= OnScanReceived;
+            _scannerManager.Dispose();
+            _scannerManager = null;
+        }
+
+        private void OnScanReceived(object sender, Scanner.DataEventArgs args)
+        {
+            var scanDataCollection = args.P0;
+            if (scanDataCollection?.Result == ScannerResults.Success)
             {
-                profileManager = null;
-            }
-            if (emdkManager != null)
-            {
-                emdkManager.Release();
-                emdkManager = null;
+                var textView = FindViewById<EditText>(Resource.Id.codeInput);
+                if (textView != null)
+                    textView.Text = scanDataCollection.GetScanData()[0].Data;
             }
         }
+
+        public void OnClick(View v)
+        {
+            if (_scannerManager.IsScannerEnabled)
+                _scannerManager.Disable();
+            else
+                _scannerManager.Enable();
+        }
+
+
+
+
+
+
     }
 }

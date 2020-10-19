@@ -39,6 +39,12 @@
                 android:src="@drawable/checkmark"
                 android:contentDescription="@string/descBtnApplay" />
         </android.support.v7.widget.Toolbar>
+        <Button
+            android:text="Toggle Scanner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal | bottom"
+            android:id="@+id/toggle_scanner_button"/>
         <android.support.v7.widget.RecyclerView
             android:minWidth="25px"
             android:minHeight="25px"
@@ -92,9 +98,4 @@
             </RelativeLayout>
         </android.support.v7.widget.Toolbar>
     </LinearLayout>
-    <Button
-        android:text="Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button1" />
 </RelativeLayout>

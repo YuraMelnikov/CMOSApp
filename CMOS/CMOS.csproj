@@ -71,11 +71,13 @@
   <ItemGroup>
     <Compile Include="Adapter\OrdersAdapter.cs" />
     <Compile Include="Adapter\PositionsAdapter.cs" />
+    <Compile Include="Contract\IBarcodeScannerManager.cs" />
     <Compile Include="Data Models\Order.cs" />
     <Compile Include="Data Models\Position.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScannerManager\BarcodeScannerManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
