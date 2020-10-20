@@ -74,6 +74,7 @@
     <Compile Include="Contract\IBarcodeScannerManager.cs" />
     <Compile Include="Data Models\Order.cs" />
     <Compile Include="Data Models\Position.cs" />
+    <Compile Include="Data Models\ShortPosition.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

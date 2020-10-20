@@ -16,6 +16,7 @@ using Symbol.XamarinEMDK.Barcode;
 using Symbol.XamarinEMDK;
 using Xamarin.Essentials;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
+using Newtonsoft.Json;
 
 namespace CMOS
 {
@@ -78,6 +79,7 @@ namespace CMOS
             buttonRemove.Click += Btn_Click;
             buttonPlus.Click += Btn_ClickPlus;
             buttonMinus.Click += Btn_ClickMinus;
+            buttonAplay.Click += Btn_ClickAplay;
 
             InitializingOrdersList();
         }
@@ -185,6 +187,8 @@ namespace CMOS
                     {
                         weight = Double.Parse(weightInput.Text.Replace(".", ","));
                         pos.Rate += count;
+                        if (pos.Rate > pos.Norm)
+                            pos.Rate = pos.Norm;
                         if(weight != pos.Weight)
                         {
                             pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
@@ -362,6 +366,25 @@ namespace CMOS
             catch
             {
                 quentityInput.Text = "1";
+            }
+        }
+
+        private void Btn_ClickAplay(object sender, EventArgs e)
+        {
+            List<ShortPosition> list = new List<ShortPosition>();
+            foreach(var t in positionsList)
+            {
+                ShortPosition shortPosition = new ShortPosition { Id = t.Id, Rate = t.Rate, Weight = t.Weight };
+                list.Add(shortPosition);
+            }
+            string json = JsonConvert.SerializeObject(list);
+            try
+            {
+                var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + json);
+            }
+            catch
+            {
+
             }
         }
 
