@@ -1,4 +1,5 @@
 ﻿using Android.Content;
+using Android.Widget;
 using CMOS.Contract;
 using Symbol.XamarinEMDK;
 using Symbol.XamarinEMDK.Barcode;
@@ -14,7 +15,9 @@ namespace CMOS.ScannerManager
         private EMDKManager _emdkManager;
         private BarcodeManager _barcodeManager;
         private Scanner _scanner;
-        public event EventHandler<Scanner.DataEventArgs> ScanReceived;
+		private EditText _scanBarcodeEditText;
+		public event EventHandler<Scanner.DataEventArgs> ScanReceived;
+
         public bool IsScannerEnabled { get; private set; }
 
 		public BarcodeScannerManager(Context context)
@@ -45,7 +48,7 @@ namespace CMOS.ScannerManager
 				_scanner = _barcodeManager.GetDevice(BarcodeManager.DeviceIdentifier.Default);
 		}
 
-		public void OnClosed()
+		void EMDKManager.IEMDKListener.OnClosed()
 		{
 			if (_scanner != null)
 			{
@@ -97,7 +100,8 @@ namespace CMOS.ScannerManager
 			StatusData.ScannerStates state = args?.P0?.State;
 			if (state == StatusData.ScannerStates.Idle)
 			{
-				Task.Delay(100);
+				//Task.Delay(100);
+				SetScannerConfig();
 				_scanner.Read();
 			}
 			else if (state == StatusData.ScannerStates.Scanning)
@@ -110,5 +114,18 @@ namespace CMOS.ScannerManager
 		{
 			MainThread.BeginInvokeOnMainThread(() => ScanReceived?.Invoke(sender, args));
 		}
+
+		private void SetScannerConfig()
+		{
+			var config = _scanner.GetConfig();
+			config.SkipOnUnsupported = ScannerConfig.SkipOnUnSupported.None;
+			config.ScanParams.DecodeLEDFeedback = true;
+			config.ReaderParams.ReaderSpecific.ImagerSpecific.PicklistEx = ScannerConfig.PicklistEx.Hardware;
+			config.DecoderParams.Ean13.Enabled = true;
+			//config.DecoderParams.Code128.Enabled = false;
+			_scanner.SetConfig(config);
+		}
+
+
 	}
 }

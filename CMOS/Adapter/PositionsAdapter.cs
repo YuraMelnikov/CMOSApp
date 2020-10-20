@@ -31,7 +31,7 @@ namespace CMOS.Adapter
             var holder = viewHolder as PositionsAdapterViewHolder;
             holder.name.Text = Items[position].Name;
             holder.code.Text = Items[position].Code;
-            holder.weight.Text = Items[position].Weight;
+            holder.weight.Text = Items[position].Weight.ToString();
 
             if (holder.weight.Text == "0")
             {
@@ -40,19 +40,19 @@ namespace CMOS.Adapter
                 holder.weight.Typeface = typeface;
             }
             holder.shortName.Text = Items[position].ShortName;
-            holder.norm.Text = Items[position].Norm;
-            holder.rate.Text = Items[position].Rate;
-            if (holder.norm.Text == holder.rate.Text)
-            {
-                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9ED9CC"));
-            }
-            else if (holder.rate.Text != "0")
-            {
-                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#F3DB74"));
-            }
-            else
-            {
-            }
+            holder.norm.Text = Items[position].Norm.ToString();
+            holder.rate.Text = Items[position].Rate.ToString();
+            //if (holder.norm.Text == holder.rate.Text)
+            //{
+            //    holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9ED9CC"));
+            //}
+            //else if (holder.rate.Text != "0")
+            //{
+            //    holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#F3DB74"));
+            //}
+            //else
+            //{
+            //}
             holder.order.Text = Items[position].Order;
             holder.color.Text = Items[position].Color;
             if (holder.color.Text == "RAL1021")
