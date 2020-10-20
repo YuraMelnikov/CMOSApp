@@ -65,17 +65,10 @@
                     android:layout_alignParentRight="true"/>
                 <TextView
                     android:id="@+id/order"
+                    android:textSize="15sp"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:text="@string/testPositions"
-                    android:textColor="@android:color/black"
-                    android:layout_below="@+id/weight"/>
-                <TextView
-                    android:id="@+id/shortName"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:textAlignment="center"
-                    android:text="@string/testMaterialShortName"
                     android:textColor="@android:color/black"
                     android:layout_below="@+id/weight"/>
                 <TextView

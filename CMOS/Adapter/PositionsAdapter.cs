@@ -10,6 +10,7 @@ namespace CMOS.Adapter
 {
     class PositionsAdapter : RecyclerView.Adapter
     {
+        private bool isColor = false;
         public event EventHandler<PositionsAdapterClickEventArgs> ItemLongClick;
         List<Position> Items;
         public event EventHandler<int> ItemClick;
@@ -39,9 +40,13 @@ namespace CMOS.Adapter
                 var typeface = Typeface.Create("<FONT FAMILY NAME>", Android.Graphics.TypefaceStyle.Bold);
                 holder.weight.Typeface = typeface;
             }
-            holder.shortName.Text = Items[position].ShortName;
             holder.norm.Text = Items[position].Norm.ToString();
             holder.rate.Text = Items[position].Rate.ToString();
+            if (isColor == false)
+            {
+                isColor = true;
+                holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#c4f5ea"));
+            }
             //if (holder.norm.Text == holder.rate.Text)
             //{
             //    holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9ED9CC"));
@@ -100,7 +105,6 @@ namespace CMOS.Adapter
         public TextView name { get; set; }
         public TextView code { get; set; }
         public TextView weight { get; set; }
-        public TextView shortName { get; set; }
         public TextView norm { get; set; }
         public TextView rate { get; set; }
         public TextView order { get; set; }
@@ -113,7 +117,6 @@ namespace CMOS.Adapter
             name = (TextView)itemView.FindViewById(Resource.Id.name);
             code = (TextView)itemView.FindViewById(Resource.Id.code);
             weight = (TextView)itemView.FindViewById(Resource.Id.weight);
-            shortName = (TextView)itemView.FindViewById(Resource.Id.shortName);
             norm = (TextView)itemView.FindViewById(Resource.Id.norm);
             rate = (TextView)itemView.FindViewById(Resource.Id.rate);
             order = (TextView)itemView.FindViewById(Resource.Id.order);

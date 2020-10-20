@@ -25,8 +25,9 @@ namespace CMOS
         //Data
         private int count;
         private string sku;
-        //private double weight;
+        private int positionItem;
         private Position pos;
+        private double weight;
 
         //EMDK
         private BarcodeManager _barcodeManager;
@@ -46,6 +47,8 @@ namespace CMOS
         private EditText codeInput;
         private EditText quentityInput;
         private EditText weightInput;
+        private ImageButton buttonPlus;
+        private ImageButton buttonMinus;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -57,6 +60,8 @@ namespace CMOS
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
+            buttonPlus = (ImageButton)FindViewById(Resource.Id.buttonPlus);
+            buttonMinus = (ImageButton)FindViewById(Resource.Id.buttonMinus);
             toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
             codeInput = (EditText)FindViewById(Resource.Id.codeInput);
             weightInput = (EditText)FindViewById(Resource.Id.weightInput);
@@ -67,8 +72,12 @@ namespace CMOS
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
+            buttonPlus.Visibility = ViewStates.Invisible;
+            buttonMinus.Visibility = ViewStates.Invisible;
 
             buttonRemove.Click += Btn_Click;
+            buttonPlus.Click += Btn_ClickPlus;
+            buttonMinus.Click += Btn_ClickMinus;
 
             InitializingOrdersList();
         }
@@ -151,7 +160,6 @@ namespace CMOS
 
         private void Scanner_Data(object sender, Scanner.DataEventArgs e)
         {
-
             var scanDataCollection = e.P0;
             if ((scanDataCollection != null) && (scanDataCollection.Result == ScannerResults.Success))
             {
@@ -175,20 +183,31 @@ namespace CMOS
                     }
                     else
                     {
+                        weight = Double.Parse(weightInput.Text.Replace(".", ","));
                         pos.Rate += count;
-                        pos.Weight = Double.Parse(weightInput.Text);
+                        if(weight != pos.Weight)
+                        {
+                            pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
+                            foreach (var t in positionsList)
+                            {
+                                if (t.Code == sku)
+                                    t.Weight = weight;
+                            }
+                        }
+
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             adapterPosition = new PositionsAdapter(positionsList);
                             ordersRecyclerView.SetAdapter(adapterPosition);
                             //color!!!
-                            ordersRecyclerView.ScrollToPosition(adapterPosition.ItemCount - 1);
+                            ordersRecyclerView.ScrollToPosition(positionItem);
                         });
                         count = 1;
                         sku = GetSKUID(scanData[0].Data);
                         try
                         {
                             pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
+                            positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
                         }
                         catch
                         {
@@ -204,9 +223,33 @@ namespace CMOS
                         RunOnUiThread(() => codeInput.Text = sku);
                         RunOnUiThread(() => quentityInput.Text = count.ToString());
                         RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+                        RunOnUiThread(ProcessScan);
                     }
                 }
-                RunOnUiThread(ProcessScan);
+                else
+                {
+                    count = 1;
+                    sku = GetSKUID(scanData[0].Data);
+                    try
+                    {
+                        pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
+                    }
+                    catch
+                    {
+                        RunOnUiThread(() =>
+                        {
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                            AlertDialog alert = dialog.Create();
+                            alert.SetTitle("ТМЦ не найдено");
+                            alert.SetMessage(sku + " - нет/избыток");
+                            alert.Show();
+                        });
+                    }
+                    RunOnUiThread(() => codeInput.Text = sku);
+                    RunOnUiThread(() => quentityInput.Text = count.ToString());
+                    RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+                    RunOnUiThread(ProcessScan);
+                }
             }
         }
 
@@ -291,6 +334,37 @@ namespace CMOS
             InitializingOrdersList();
         }
 
+        private void Btn_ClickPlus(object sender, EventArgs e)
+        {
+            try
+            {
+                int que = Convert.ToInt32(quentityInput.Text);
+                que++;
+                quentityInput.Text = que.ToString();
+            }
+            catch
+            {
+                quentityInput.Text = "1";
+            }
+        }
+
+        private void Btn_ClickMinus(object sender, EventArgs e)
+        {
+            try
+            {
+                int que = Convert.ToInt32(quentityInput.Text);
+                que--;
+                if (que <= 0)
+                    quentityInput.Text = "1";
+                else
+                    quentityInput.Text = que.ToString();
+            }
+            catch
+            {
+                quentityInput.Text = "1";
+            }
+        }
+
         private void SetupOrdersRecyclerView()
         {
             ordersRecyclerView.SetLayoutManager(new LinearLayoutManager(ordersRecyclerView.Context));
@@ -346,9 +420,11 @@ namespace CMOS
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
+            buttonPlus.Visibility = ViewStates.Invisible;
+            buttonMinus.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();
-            numberTNForOrderlist.Text = "         Документы поступления";
+            numberTNForOrderlist.Text = "  Документы поступления";
         }
 
         void OnItemClick(object sender, int position)
@@ -356,6 +432,8 @@ namespace CMOS
             buttonRemove.Visibility = ViewStates.Visible;
             buttonAplay.Visibility = ViewStates.Visible;
             toolbarInputData.Visibility = ViewStates.Visible;
+            buttonPlus.Visibility = ViewStates.Visible;
+            buttonMinus.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();
