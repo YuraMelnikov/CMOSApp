@@ -16,7 +16,6 @@ using Symbol.XamarinEMDK.Barcode;
 using Symbol.XamarinEMDK;
 using Xamarin.Essentials;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
-using Newtonsoft.Json;
 
 namespace CMOS
 {
@@ -50,6 +49,7 @@ namespace CMOS
         private EditText weightInput;
         private ImageButton buttonPlus;
         private ImageButton buttonMinus;
+        private ImageButton buttonComplited;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -63,6 +63,7 @@ namespace CMOS
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
             buttonPlus = (ImageButton)FindViewById(Resource.Id.buttonPlus);
             buttonMinus = (ImageButton)FindViewById(Resource.Id.buttonMinus);
+            buttonComplited = (ImageButton)FindViewById(Resource.Id.buttonComplited);
             toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
             codeInput = (EditText)FindViewById(Resource.Id.codeInput);
             weightInput = (EditText)FindViewById(Resource.Id.weightInput);
@@ -75,15 +76,16 @@ namespace CMOS
             buttonAplay.Visibility = ViewStates.Invisible;
             buttonPlus.Visibility = ViewStates.Invisible;
             buttonMinus.Visibility = ViewStates.Invisible;
+            buttonComplited.Visibility = ViewStates.Invisible;
 
             buttonRemove.Click += Btn_Click;
             buttonPlus.Click += Btn_ClickPlus;
             buttonMinus.Click += Btn_ClickMinus;
             buttonAplay.Click += Btn_ClickAplay;
+            buttonComplited.Click += BtnClickComplited;
 
             InitializingOrdersList();
         }
-
 
         void EMDKManager.IEMDKListener.OnClosed()
         {
@@ -170,90 +172,52 @@ namespace CMOS
                 {
                     return;
                 }
-                if(pos != null)
-                {
-                    if(weightInput.Text == "0")
-                    {
-                        RunOnUiThread(() =>
-                        {
-                            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                            AlertDialog alert = dialog.Create();
-                            alert.SetTitle("Масса не задана");
-                            alert.SetMessage(sku + "взвесте ТМЦ");
-                            alert.Show();
-                        });
-                    }
-                    else
-                    {
-                        weight = Double.Parse(weightInput.Text.Replace(".", ","));
-                        pos.Rate += count;
-                        if (pos.Rate > pos.Norm)
-                            pos.Rate = pos.Norm;
-                        if(weight != pos.Weight)
-                        {
-                            pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
-                            foreach (var t in positionsList)
-                            {
-                                if (t.Code == sku)
-                                    t.Weight = weight;
-                            }
-                        }
 
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            adapterPosition = new PositionsAdapter(positionsList);
-                            ordersRecyclerView.SetAdapter(adapterPosition);
-                            //color!!!
-                            ordersRecyclerView.ScrollToPosition(positionItem);
-                        });
-                        count = 1;
-                        sku = GetSKUID(scanData[0].Data);
-                        try
-                        {
-                            pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
-                            positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
-                        }
-                        catch
-                        {
-                            RunOnUiThread(() =>
-                            {
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                                AlertDialog alert = dialog.Create();
-                                alert.SetTitle("ТМЦ не найдено");
-                                alert.SetMessage(sku + " - нет/избыток");
-                                alert.Show();
-                            });
-                        }
-                        RunOnUiThread(() => codeInput.Text = sku);
-                        RunOnUiThread(() => quentityInput.Text = count.ToString());
-                        RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
-                        RunOnUiThread(ProcessScan);
-                    }
-                }
-                else
+                sku = GetSKUID(scanData[0].Data);
+                try
                 {
-                    count = 1;
-                    sku = GetSKUID(scanData[0].Data);
-                    try
-                    {
-                        pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
-                    }
-                    catch
-                    {
-                        RunOnUiThread(() =>
-                        {
-                            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                            AlertDialog alert = dialog.Create();
-                            alert.SetTitle("ТМЦ не найдено");
-                            alert.SetMessage(sku + " - нет/избыток");
-                            alert.Show();
-                        });
-                    }
+                    pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
+                    positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
+
+                    pos.Rate++;
                     RunOnUiThread(() => codeInput.Text = sku);
-                    RunOnUiThread(() => quentityInput.Text = count.ToString());
+                    RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
                     RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
-                    RunOnUiThread(ProcessScan);
                 }
+                catch
+                {
+                    RunOnUiThread(() =>
+                    {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                        AlertDialog alert = dialog.Create();
+                        alert.SetTitle("ТМЦ не найдено");
+                        alert.SetMessage(sku + " - нет/избыток");
+                        alert.Show();
+                        return;
+                    });
+                }
+
+                if (weightInput.Text == "0")
+                {
+                    RunOnUiThread(() =>
+                    {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                        AlertDialog alert = dialog.Create();
+                        alert.SetTitle("Масса не задана");
+                        alert.SetMessage(sku + "взвесте ТМЦ");
+                        alert.Show();
+                        return;
+                    });
+                }
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    adapterPosition = new PositionsAdapter(positionsList);
+                    ordersRecyclerView.SetAdapter(adapterPosition);
+                    ordersRecyclerView.ScrollToPosition(positionItem);
+                });
+
+                RunOnUiThread(ProcessScan);
             }
         }
 
@@ -372,19 +336,34 @@ namespace CMOS
         private void Btn_ClickAplay(object sender, EventArgs e)
         {
             List<ShortPosition> list = new List<ShortPosition>();
-            foreach(var t in positionsList)
+            foreach (var t in positionsList)
             {
-                ShortPosition shortPosition = new ShortPosition { Id = t.Id, Rate = t.Rate, Weight = t.Weight };
-                list.Add(shortPosition);
+                string link = t.Id.ToString() + "a" + t.Rate.ToString().Replace(".", ",") + "a" + t.Weight.ToString().Replace(".", ",");
+                var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
             }
-            string json = JsonConvert.SerializeObject(list);
-            try
-            {
-                var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + json);
-            }
-            catch
-            {
+            InitializingOrdersList();
+        }
 
+        private void BtnClickComplited(object sender, EventArgs e)
+        {
+            if(pos != null)
+            {
+                pos.Rate = Int32.Parse(quentityInput.Text);
+                pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
+                foreach (var t in positionsList)
+                {
+                    if (t.Code == pos.Code)
+                        t.Weight = pos.Weight;
+                }
+                RunOnUiThread(() => codeInput.Text = "");
+                RunOnUiThread(() => quentityInput.Text = "1");
+                RunOnUiThread(() => weightInput.Text = "");
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    adapterPosition = new PositionsAdapter(positionsList);
+                    ordersRecyclerView.SetAdapter(adapterPosition);
+                    ordersRecyclerView.ScrollToPosition(positionItem);
+                });
             }
         }
 
@@ -445,6 +424,7 @@ namespace CMOS
             buttonAplay.Visibility = ViewStates.Invisible;
             buttonPlus.Visibility = ViewStates.Invisible;
             buttonMinus.Visibility = ViewStates.Invisible;
+            buttonComplited.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();
             numberTNForOrderlist.Text = "  Документы поступления";
@@ -457,6 +437,7 @@ namespace CMOS
             toolbarInputData.Visibility = ViewStates.Visible;
             buttonPlus.Visibility = ViewStates.Visible;
             buttonMinus.Visibility = ViewStates.Visible;
+            buttonComplited.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
             SetupPositionsRecyclerView();
