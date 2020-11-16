@@ -178,7 +178,6 @@ namespace CMOS
                 {
                     pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
                     positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
-
                     pos.Rate++;
                     RunOnUiThread(() => codeInput.Text = sku);
                     RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
