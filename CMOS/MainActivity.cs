@@ -23,11 +23,10 @@ namespace CMOS
     public class MainActivity : AppCompatActivity, EMDKManager.IEMDKListener
     {
         //Data
-        private int count;
+        private int maxCount;
         private string sku;
         private int positionItem;
         private Position pos;
-        private double weight;
 
         //EMDK
         private BarcodeManager _barcodeManager;
@@ -50,13 +49,13 @@ namespace CMOS
         private ImageButton buttonPlus;
         private ImageButton buttonMinus;
         private ImageButton buttonComplited;
+        private ImageView imageLazy;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
             SetContentView(Resource.Layout.activity_main);
-
             numberTNForOrderlist = (TextView)FindViewById(Resource.Id.numberTNForOrderlist);
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
@@ -68,22 +67,19 @@ namespace CMOS
             codeInput = (EditText)FindViewById(Resource.Id.codeInput);
             weightInput = (EditText)FindViewById(Resource.Id.weightInput);
             quentityInput = (EditText)FindViewById(Resource.Id.quentityInput);
-
-            var results = EMDKManager.GetEMDKManager(Application.Context, this);
-
-            toolbarInputData.Visibility = ViewStates.Invisible;
-            buttonRemove.Visibility = ViewStates.Invisible;
-            buttonAplay.Visibility = ViewStates.Invisible;
-            buttonPlus.Visibility = ViewStates.Invisible;
-            buttonMinus.Visibility = ViewStates.Invisible;
-            buttonComplited.Visibility = ViewStates.Invisible;
-
-            buttonRemove.Click += Btn_Click;
-            buttonPlus.Click += Btn_ClickPlus;
-            buttonMinus.Click += Btn_ClickMinus;
-            buttonAplay.Click += Btn_ClickAplay;
-            buttonComplited.Click += BtnClickComplited;
-
+            imageLazy = (ImageView)FindViewById(Resource.Id.imageLazy);
+            try
+            {
+                var results = EMDKManager.GetEMDKManager(Application.Context, this);
+            }
+            catch
+            {
+            }
+            buttonRemove.Click += ButtonRemove_Click; 
+            buttonPlus.Click += ButtonPlus_Click;
+            buttonMinus.Click += ButtonMinus_Click;
+            buttonAplay.Click += ButtonAplay_Click;
+            buttonComplited.Click += ButtonComplited_Click;
             InitializingOrdersList();
         }
 
@@ -172,13 +168,13 @@ namespace CMOS
                 {
                     return;
                 }
-
                 sku = GetSKUID(scanData[0].Data);
                 try
                 {
                     pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
                     positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
                     pos.Rate++;
+                    maxCount = pos.Norm;
                     RunOnUiThread(() => codeInput.Text = sku);
                     RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
                     RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
@@ -195,7 +191,6 @@ namespace CMOS
                         return;
                     });
                 }
-
                 if (weightInput.Text == "0")
                 {
                     RunOnUiThread(() =>
@@ -208,14 +203,12 @@ namespace CMOS
                         return;
                     });
                 }
-
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     adapterPosition = new PositionsAdapter(positionsList);
                     ordersRecyclerView.SetAdapter(adapterPosition);
                     ordersRecyclerView.ScrollToPosition(positionItem);
                 });
-
                 RunOnUiThread(ProcessScan);
             }
         }
@@ -271,7 +264,6 @@ namespace CMOS
                         _scanner.Disable();
                         _scanner.Data -= Scanner_Data;
                         _scanner.Status -= Scanner_Status;
-
                         _scanner.Release();
                     }
                     catch (ScannerException e)
@@ -296,17 +288,23 @@ namespace CMOS
             InitScanner();
         }
 
-        private void Btn_Click(object sender, EventArgs e)
+        private void ButtonRemove_Click(object sender, EventArgs e)
         {
             InitializingOrdersList();
         }
 
-        private void Btn_ClickPlus(object sender, EventArgs e)
+        private void ButtonPlus_Click(object sender, EventArgs e)
         {
             try
             {
                 int que = Convert.ToInt32(quentityInput.Text);
-                que++;
+                if (que >= maxCount)
+                {
+                }
+                else
+                {
+                    que++;
+                }
                 quentityInput.Text = que.ToString();
             }
             catch
@@ -315,7 +313,7 @@ namespace CMOS
             }
         }
 
-        private void Btn_ClickMinus(object sender, EventArgs e)
+        private void ButtonMinus_Click(object sender, EventArgs e)
         {
             try
             {
@@ -332,18 +330,36 @@ namespace CMOS
             }
         }
 
-        private void Btn_ClickAplay(object sender, EventArgs e)
+        private void ButtonAplay_Click(object sender, EventArgs e)
         {
+            ordersRecyclerView.Visibility = ViewStates.Invisible;
             List<ShortPosition> list = new List<ShortPosition>();
             foreach (var t in positionsList)
             {
-                string link = t.Id.ToString() + "a" + t.Rate.ToString().Replace(".", ",") + "a" + t.Weight.ToString().Replace(".", ",");
-                var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
+                try
+                {
+                    string link = t.Id.ToString() + "a" + t.Rate.ToString().Replace(".", ",") + "a" + t.Weight.ToString().Replace(".", ",");
+                    var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
+                    InitializingOrdersList();
+                }
+                catch (Exception ex)
+                {
+                    ordersRecyclerView.Visibility = ViewStates.Visible;
+                    RunOnUiThread(() =>
+                    {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                        AlertDialog alert = dialog.Create();
+                        alert.SetTitle("Сервер не отвечает");
+                        alert.SetMessage("Повторите попытку" + " Ошибка: " + ex.Message);
+                        alert.Show();
+                        return;
+                    });
+                }
             }
-            InitializingOrdersList();
+            ordersRecyclerView.Visibility = ViewStates.Visible;
         }
 
-        private void BtnClickComplited(object sender, EventArgs e)
+        private void ButtonComplited_Click(object sender, EventArgs e)
         {
             if(pos != null)
             {
@@ -354,9 +370,9 @@ namespace CMOS
                     if (t.Code == pos.Code)
                         t.Weight = pos.Weight;
                 }
-                RunOnUiThread(() => codeInput.Text = "");
-                RunOnUiThread(() => quentityInput.Text = "1");
-                RunOnUiThread(() => weightInput.Text = "");
+                //RunOnUiThread(() => codeInput.Text = "");
+                //RunOnUiThread(() => quentityInput.Text = "1");
+                //RunOnUiThread(() => weightInput.Text = "");
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     adapterPosition = new PositionsAdapter(positionsList);
@@ -414,6 +430,7 @@ namespace CMOS
                 Position searchResult = result.ToObject<Position>();
                 positionsList.Add(searchResult);
             }
+            positionsList.Add(new Position { Id = 0, Code = "", Color = "", Loading = "", Name = "", Norm = 0, Order = "", Rate = 0, ShortName = "", Weight = 0 });
         }
 
         private void InitializingOrdersList()
@@ -445,7 +462,11 @@ namespace CMOS
 
         void OnPositionClick(object sender, int position)
         {
-
+            pos = positionsList[position];
+            maxCount = pos.Norm;
+            RunOnUiThread(() => codeInput.Text = pos.Code);
+            RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
+            RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
         }
     }
 }

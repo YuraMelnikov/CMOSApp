@@ -15,7 +15,6 @@ namespace CMOS.ScannerManager
         private EMDKManager _emdkManager;
         private BarcodeManager _barcodeManager;
         private Scanner _scanner;
-		private EditText _scanBarcodeEditText;
 		public event EventHandler<Scanner.DataEventArgs> ScanReceived;
 
         public bool IsScannerEnabled { get; private set; }
