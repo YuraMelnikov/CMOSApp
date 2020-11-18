@@ -47,17 +47,6 @@ namespace CMOS.Adapter
                 isColor = true;
                 holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#c4f5ea"));
             }
-            //if (holder.norm.Text == holder.rate.Text)
-            //{
-            //    holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9ED9CC"));
-            //}
-            //else if (holder.rate.Text != "0")
-            //{
-            //    holder.cardItem.SetBackgroundColor(Android.Graphics.Color.ParseColor("#F3DB74"));
-            //}
-            //else
-            //{
-            //}
             holder.order.Text = Items[position].Order;
             holder.color.Text = Items[position].Color;
             if (holder.color.Text == "RAL1021")
@@ -96,8 +85,8 @@ namespace CMOS.Adapter
             if (ItemClick != null)
                 ItemClick(this, position);
         }
-        void OnLongClick(PositionsAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
 
+        void OnLongClick(PositionsAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
     }
 
     public class PositionsAdapterViewHolder : RecyclerView.ViewHolder

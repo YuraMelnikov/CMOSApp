@@ -19,4 +19,8 @@
     <string name="descBtnClose">Закрыть</string>
     <string name="descBtnApplay">Записать</string>
     <string name="app_suName">Документы поступления</string>
+
+    <string name="radioButtonAll">Все</string>
+    <string name="radioButtonDef">Дефицит</string>
+    <string name="radioButtonWeight">Изменен вес</string>
 </resources>

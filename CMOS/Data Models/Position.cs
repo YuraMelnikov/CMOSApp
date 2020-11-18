@@ -2,6 +2,7 @@
 {
     public class Position
     {
+        public bool IsWeight { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
         public double Weight { get; set; }

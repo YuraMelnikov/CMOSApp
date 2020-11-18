@@ -23,6 +23,7 @@
                     android:textColor="@android:color/black"
                     android:text="@string/testMaterialName"
                     android:textStyle="bold"
+                    android:maxLength = "30"
                     android:textSize="14sp"/>
                 <TextView
                     android:id="@+id/id"

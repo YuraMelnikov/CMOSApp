@@ -27,6 +27,8 @@ namespace CMOS
         private string sku;
         private int positionItem;
         private Position pos;
+        private int orderId;
+        private bool isEdit;
 
         //EMDK
         private BarcodeManager _barcodeManager;
@@ -49,7 +51,10 @@ namespace CMOS
         private ImageButton buttonPlus;
         private ImageButton buttonMinus;
         private ImageButton buttonComplited;
-        private ImageView imageLazy;
+        private RadioGroup radioGroupFiltering;
+        private RadioButton radioButtonAll;
+        private RadioButton radioButtonDef;
+        private RadioButton radioButtonWeight;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -67,7 +72,10 @@ namespace CMOS
             codeInput = (EditText)FindViewById(Resource.Id.codeInput);
             weightInput = (EditText)FindViewById(Resource.Id.weightInput);
             quentityInput = (EditText)FindViewById(Resource.Id.quentityInput);
-            imageLazy = (ImageView)FindViewById(Resource.Id.imageLazy);
+            radioGroupFiltering = (RadioGroup)FindViewById(Resource.Id.radioGroupFiltering);
+            radioButtonAll = (RadioButton)FindViewById(Resource.Id.radioButtonAll);
+            radioButtonDef = (RadioButton)FindViewById(Resource.Id.radioButtonDef);
+            radioButtonWeight = (RadioButton)FindViewById(Resource.Id.radioButtonWeight);
             try
             {
                 var results = EMDKManager.GetEMDKManager(Application.Context, this);
@@ -80,7 +88,66 @@ namespace CMOS
             buttonMinus.Click += ButtonMinus_Click;
             buttonAplay.Click += ButtonAplay_Click;
             buttonComplited.Click += ButtonComplited_Click;
+            radioButtonAll.Click += RadioButtonAll_Click;
+            radioButtonDef.Click += RadioButtonDef_Click;
+            radioButtonWeight.Click += RadioButtonWeight_Click;
             InitializingOrdersList();
+            isEdit = false;
+        }
+
+        private void RadioButtonAll_Click(object sender, EventArgs e)
+        {
+            if(isEdit == true)
+                UpdateDataToServer();
+            CreatePositionsData(orderId);
+            SetupPositionsRecyclerView();
+            isEdit = false;
+        }
+
+        private void RadioButtonDef_Click(object sender, EventArgs e)
+        {
+            if (isEdit == true)
+                UpdateDataToServer();
+            CreatePositionsData(orderId);
+            SetupPositionsRecyclerView();
+            positionsList = positionsList.Where(a => a.Rate != a.Norm || a.Id == 0).ToList();
+            RunOnUiThread(() => codeInput.Text = "");
+            RunOnUiThread(() => quentityInput.Text = "");
+            RunOnUiThread(() => weightInput.Text = "");
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                adapterPosition = new PositionsAdapter(positionsList);
+                adapterPosition.ItemClick += OnPositionClick;
+                ordersRecyclerView.SetAdapter(adapterPosition);
+                ordersRecyclerView.ScrollToPosition(0);
+            });
+            codeInput.ClearFocus();
+            quentityInput.ClearFocus();
+            weightInput.ClearFocus();
+            isEdit = false;
+        }
+
+        private void RadioButtonWeight_Click(object sender, EventArgs e)
+        {
+            if (isEdit == true)
+                UpdateDataToServer();
+            CreatePositionsData(orderId);
+            SetupPositionsRecyclerView();
+            positionsList = positionsList.Where(a => a.IsWeight == true || a.Id == 0).ToList();
+            RunOnUiThread(() => codeInput.Text = "");
+            RunOnUiThread(() => quentityInput.Text = "");
+            RunOnUiThread(() => weightInput.Text = "");
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                adapterPosition = new PositionsAdapter(positionsList);
+                adapterPosition.ItemClick += OnPositionClick;
+                ordersRecyclerView.SetAdapter(adapterPosition);
+                ordersRecyclerView.ScrollToPosition(0);
+            });
+            codeInput.ClearFocus();
+            quentityInput.ClearFocus();
+            weightInput.ClearFocus();
+            isEdit = false;
         }
 
         void EMDKManager.IEMDKListener.OnClosed()
@@ -178,6 +245,7 @@ namespace CMOS
                     RunOnUiThread(() => codeInput.Text = sku);
                     RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
                     RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+                    isEdit = true;
                 }
                 catch
                 {
@@ -198,7 +266,7 @@ namespace CMOS
                         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                         AlertDialog alert = dialog.Create();
                         alert.SetTitle("Масса не задана");
-                        alert.SetMessage(sku + "взвесте ТМЦ");
+                        alert.SetMessage(sku + " взвесте ТМЦ");
                         alert.Show();
                         return;
                     });
@@ -222,7 +290,7 @@ namespace CMOS
         {
             if (string.IsNullOrEmpty(codeInput.Text))
             {
-                Toast.MakeText(this, "You must scan or enter a barcode to begin", ToastLength.Long).Show();
+                Toast.MakeText(this, "Вы можете отсканировать код позже", ToastLength.Long).Show();
                 return;
             }
             else
@@ -333,14 +401,21 @@ namespace CMOS
         private void ButtonAplay_Click(object sender, EventArgs e)
         {
             ordersRecyclerView.Visibility = ViewStates.Invisible;
-            List<ShortPosition> list = new List<ShortPosition>();
-            foreach (var t in positionsList)
+            UpdateDataToServer();
+            InitializingOrdersList();
+            ordersRecyclerView.Visibility = ViewStates.Visible;
+            isEdit = false;
+        }
+
+        private void UpdateDataToServer()
+        {
+            int stopPosition = positionsList.Count - 1;
+            for (int i = 0; i < stopPosition; i++)
             {
                 try
                 {
-                    string link = t.Id.ToString() + "a" + t.Rate.ToString().Replace(".", ",") + "a" + t.Weight.ToString().Replace(".", ",");
-                    var res = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
-                    InitializingOrdersList();
+                    string link = positionsList[i].Id.ToString() + "a" + positionsList[i].Rate.ToString().Replace(".", ",") + "a" + positionsList[i].Weight.ToString().Replace(".", ",");
+                    new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
                 }
                 catch (Exception ex)
                 {
@@ -356,29 +431,40 @@ namespace CMOS
                     });
                 }
             }
-            ordersRecyclerView.Visibility = ViewStates.Visible;
+            isEdit = false;
         }
 
         private void ButtonComplited_Click(object sender, EventArgs e)
         {
             if(pos != null)
             {
-                pos.Rate = Int32.Parse(quentityInput.Text);
+                int quentity = Int32.Parse(quentityInput.Text);
+                if (quentity > pos.Norm)
+                    quentity = pos.Norm;
+                pos.Rate = quentity;
+                if (pos.Weight != Double.Parse(weightInput.Text.Replace(".", ",")))
+                    pos.IsWeight = true;
                 pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
+                positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
                 foreach (var t in positionsList)
                 {
                     if (t.Code == pos.Code)
                         t.Weight = pos.Weight;
                 }
-                //RunOnUiThread(() => codeInput.Text = "");
-                //RunOnUiThread(() => quentityInput.Text = "1");
-                //RunOnUiThread(() => weightInput.Text = "");
+                RunOnUiThread(() => codeInput.Text = pos.Code);
+                RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
+                RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     adapterPosition = new PositionsAdapter(positionsList);
+                    adapterPosition.ItemClick += OnPositionClick;
                     ordersRecyclerView.SetAdapter(adapterPosition);
                     ordersRecyclerView.ScrollToPosition(positionItem);
                 });
+                codeInput.ClearFocus();
+                quentityInput.ClearFocus();
+                weightInput.ClearFocus();
+                isEdit = true;
             }
         }
 
@@ -396,6 +482,7 @@ namespace CMOS
             adapterPosition = new PositionsAdapter(positionsList);
             adapterPosition.ItemClick += OnPositionClick;
             ordersRecyclerView.SetAdapter(adapterPosition);
+            isEdit = false;
         }
 
         private void CreateOrdersData()
@@ -415,6 +502,7 @@ namespace CMOS
                 searchResult.NumberTN = "ПТМЦ №: " + searchResult.NumberTN;
                 ordersList.Add(searchResult);
             }
+            isEdit = false;
         }
 
         private void CreatePositionsData(int id)
@@ -431,6 +519,7 @@ namespace CMOS
                 positionsList.Add(searchResult);
             }
             positionsList.Add(new Position { Id = 0, Code = "", Color = "", Loading = "", Name = "", Norm = 0, Order = "", Rate = 0, ShortName = "", Weight = 0 });
+            isEdit = false;
         }
 
         private void InitializingOrdersList()
@@ -441,9 +530,11 @@ namespace CMOS
             buttonPlus.Visibility = ViewStates.Invisible;
             buttonMinus.Visibility = ViewStates.Invisible;
             buttonComplited.Visibility = ViewStates.Invisible;
+            radioGroupFiltering.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();
             numberTNForOrderlist.Text = "  Документы поступления";
+            isEdit = false;
         }
 
         void OnItemClick(object sender, int position)
@@ -451,21 +542,32 @@ namespace CMOS
             buttonRemove.Visibility = ViewStates.Visible;
             buttonAplay.Visibility = ViewStates.Visible;
             toolbarInputData.Visibility = ViewStates.Visible;
-            buttonPlus.Visibility = ViewStates.Visible;
-            buttonMinus.Visibility = ViewStates.Visible;
-            buttonComplited.Visibility = ViewStates.Visible;
+            radioGroupFiltering.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
-            CreatePositionsData(Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", "")));
+            orderId = Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", ""));
+            CreatePositionsData(orderId);
             SetupPositionsRecyclerView();
             numberTNForOrderlist.Text = "         " + ordersList[position].NumberTN;
+            isEdit = false;
         }
 
         void OnPositionClick(object sender, int position)
         {
             pos = positionsList[position];
             maxCount = pos.Norm;
+            positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                adapterPosition = new PositionsAdapter(positionsList);
+                adapterPosition.ItemClick += OnPositionClick;
+                ordersRecyclerView.SetAdapter(adapterPosition);
+                ordersRecyclerView.ScrollToPosition(positionItem);
+            });
             RunOnUiThread(() => codeInput.Text = pos.Code);
-            RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
+            if(pos.Rate == 0)
+                RunOnUiThread(() => quentityInput.Text = "");
+            else
+                RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
             RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
         }
     }
