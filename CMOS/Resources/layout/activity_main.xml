@@ -136,8 +136,8 @@
         android:minHeight="25px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100sp"
-        android:layout_marginEnd="120px"
+        android:layout_marginTop="250sp"
+        android:layout_marginEnd="50px"
         android:layout_alignParentRight="true"
         android:id="@+id/radioGroupFiltering">
         <RadioButton

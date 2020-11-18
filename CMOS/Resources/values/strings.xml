@@ -21,6 +21,6 @@
     <string name="app_suName">Документы поступления</string>
 
     <string name="radioButtonAll">Все</string>
-    <string name="radioButtonDef">Дефицит</string>
-    <string name="radioButtonWeight">Изменен вес</string>
+    <string name="radioButtonDef">Деф</string>
+    <string name="radioButtonWeight">Вес</string>
 </resources>

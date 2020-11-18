@@ -16,6 +16,7 @@ using Symbol.XamarinEMDK.Barcode;
 using Symbol.XamarinEMDK;
 using Xamarin.Essentials;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
+using Java.IO;
 
 namespace CMOS
 {
@@ -29,6 +30,7 @@ namespace CMOS
         private Position pos;
         private int orderId;
         private bool isEdit;
+        private bool isShortList;
 
         //EMDK
         private BarcodeManager _barcodeManager;
@@ -93,6 +95,7 @@ namespace CMOS
             radioButtonWeight.Click += RadioButtonWeight_Click;
             InitializingOrdersList();
             isEdit = false;
+            isShortList = false;
         }
 
         private void RadioButtonAll_Click(object sender, EventArgs e)
@@ -102,14 +105,18 @@ namespace CMOS
             CreatePositionsData(orderId);
             SetupPositionsRecyclerView();
             isEdit = false;
+            isShortList = false;
         }
 
         private void RadioButtonDef_Click(object sender, EventArgs e)
         {
             if (isEdit == true)
                 UpdateDataToServer();
-            CreatePositionsData(orderId);
-            SetupPositionsRecyclerView();
+            if(isShortList == true)
+            {
+                CreatePositionsData(orderId);
+                SetupPositionsRecyclerView();
+            }
             positionsList = positionsList.Where(a => a.Rate != a.Norm || a.Id == 0).ToList();
             RunOnUiThread(() => codeInput.Text = "");
             RunOnUiThread(() => quentityInput.Text = "");
@@ -125,14 +132,18 @@ namespace CMOS
             quentityInput.ClearFocus();
             weightInput.ClearFocus();
             isEdit = false;
+            isShortList = true;
         }
 
         private void RadioButtonWeight_Click(object sender, EventArgs e)
         {
             if (isEdit == true)
                 UpdateDataToServer();
-            CreatePositionsData(orderId);
-            SetupPositionsRecyclerView();
+            if (isShortList == true)
+            {
+                CreatePositionsData(orderId);
+                SetupPositionsRecyclerView();
+            }
             positionsList = positionsList.Where(a => a.IsWeight == true || a.Id == 0).ToList();
             RunOnUiThread(() => codeInput.Text = "");
             RunOnUiThread(() => quentityInput.Text = "");
@@ -148,6 +159,7 @@ namespace CMOS
             quentityInput.ClearFocus();
             weightInput.ClearFocus();
             isEdit = false;
+            isShortList = true;
         }
 
         void EMDKManager.IEMDKListener.OnClosed()
@@ -217,7 +229,7 @@ namespace CMOS
 
         private void SetScannerConfig()
         {
-            var config = _scanner.GetConfig();
+            ScannerConfig config = _scanner.GetConfig();
             config.SkipOnUnsupported = ScannerConfig.SkipOnUnSupported.None;
             config.ScanParams.DecodeLEDFeedback = true;
             config.ReaderParams.ReaderSpecific.ImagerSpecific.PicklistEx = ScannerConfig.PicklistEx.Hardware;
@@ -542,7 +554,8 @@ namespace CMOS
             buttonRemove.Visibility = ViewStates.Visible;
             buttonAplay.Visibility = ViewStates.Visible;
             toolbarInputData.Visibility = ViewStates.Visible;
-            radioGroupFiltering.Visibility = ViewStates.Visible;
+            radioGroupFiltering.Visibility = ViewStates.Visible; 
+            buttonComplited.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             orderId = Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", ""));
             CreatePositionsData(orderId);
