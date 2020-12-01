@@ -16,7 +16,8 @@ using Symbol.XamarinEMDK.Barcode;
 using Symbol.XamarinEMDK;
 using Xamarin.Essentials;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
-using Java.IO;
+using Android.Content;
+using Android.Runtime;
 
 namespace CMOS
 {
@@ -29,6 +30,7 @@ namespace CMOS
         private int positionItem;
         private Position pos;
         private int orderId;
+        private string partNumber;
         private bool isEdit;
         private bool isShortList;
 
@@ -57,6 +59,8 @@ namespace CMOS
         private RadioButton radioButtonAll;
         private RadioButton radioButtonDef;
         private RadioButton radioButtonWeight;
+
+        public Context ACTION_USB_PERMISSION { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -295,7 +299,7 @@ namespace CMOS
 
         private string GetSKUID(string data)
         {
-            return data.Replace("D", "").Replace("01000000", "");
+            return data.Replace("D", "").Replace("01000000", "").Replace(partNumber, "");
         }
 
         private void ProcessScan()
@@ -448,7 +452,12 @@ namespace CMOS
 
         private void ButtonComplited_Click(object sender, EventArgs e)
         {
-            if(pos != null)
+            SavePosData();
+        }
+
+        private void SavePosData()
+        {
+            if (pos != null)
             {
                 int quentity = Int32.Parse(quentityInput.Text);
                 if (quentity > pos.Norm)
@@ -555,13 +564,26 @@ namespace CMOS
             buttonAplay.Visibility = ViewStates.Visible;
             toolbarInputData.Visibility = ViewStates.Visible;
             radioGroupFiltering.Visibility = ViewStates.Visible; 
-            buttonComplited.Visibility = ViewStates.Visible;
             Toast.MakeText(this, ordersList[position].Id, ToastLength.Short).Show();
             orderId = Convert.ToInt32(ordersList[position].Id.Replace("Заказ №: ", ""));
             CreatePositionsData(orderId);
             SetupPositionsRecyclerView();
             numberTNForOrderlist.Text = "         " + ordersList[position].NumberTN;
+            partNumber = GetPartNumberForBarcode(ordersList[position].NumberTN);
             isEdit = false;
+        }
+
+        private string GetPartNumberForBarcode(string number)
+        {
+            number = number.Replace("ПТМЦ №: ", ""); 
+            if (number.Length == 1)
+                return "1000000" + number;
+            else if (number.Length == 2)
+                return "100000" + number;
+            else if (number.Length == 3)
+                return "10000" + number;
+            else
+                return "1000" + number;
         }
 
         void OnPositionClick(object sender, int position)
@@ -582,6 +604,13 @@ namespace CMOS
             else
                 RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
             RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+        }
+
+        public override bool OnKeyUp([GeneratedEnum] Keycode keyCode, KeyEvent e)
+        {
+            if (keyCode == Android.Views.Keycode.Enter)
+                SavePosData();
+            return base.OnKeyUp(keyCode, e);
         }
     }
 }
