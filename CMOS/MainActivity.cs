@@ -457,35 +457,50 @@ namespace CMOS
 
         private void SavePosData()
         {
-            if (pos != null)
+            try
             {
-                int quentity = Int32.Parse(quentityInput.Text);
-                if (quentity > pos.Norm)
-                    quentity = pos.Norm;
-                pos.Rate = quentity;
-                if (pos.Weight != Double.Parse(weightInput.Text.Replace(".", ",")))
-                    pos.IsWeight = true;
-                pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
-                positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
-                foreach (var t in positionsList)
+                if (pos != null)
                 {
-                    if (t.Code == pos.Code)
-                        t.Weight = pos.Weight;
+                    int quentity = Int32.Parse(quentityInput.Text);
+                    if (quentity > pos.Norm)
+                        quentity = pos.Norm;
+                    pos.Rate = quentity;
+                    if (pos.Weight != Double.Parse(weightInput.Text.Replace(".", ",")))
+                        pos.IsWeight = true;
+                    pos.Weight = Double.Parse(weightInput.Text.Replace(".", ","));
+                    positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
+                    foreach (var t in positionsList)
+                    {
+                        if (t.Code == pos.Code)
+                            t.Weight = pos.Weight;
+                    }
+                    RunOnUiThread(() => codeInput.Text = pos.Code);
+                    RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
+                    RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        adapterPosition = new PositionsAdapter(positionsList);
+                        adapterPosition.ItemClick += OnPositionClick;
+                        ordersRecyclerView.SetAdapter(adapterPosition);
+                        ordersRecyclerView.ScrollToPosition(positionItem);
+                    });
+                    codeInput.ClearFocus();
+                    quentityInput.ClearFocus();
+                    weightInput.ClearFocus();
+                    isEdit = true;
                 }
-                RunOnUiThread(() => codeInput.Text = pos.Code);
-                RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
-                RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
-                MainThread.BeginInvokeOnMainThread(() =>
+            }
+            catch (Exception ex)
+            {
+                RunOnUiThread(() =>
                 {
-                    adapterPosition = new PositionsAdapter(positionsList);
-                    adapterPosition.ItemClick += OnPositionClick;
-                    ordersRecyclerView.SetAdapter(adapterPosition);
-                    ordersRecyclerView.ScrollToPosition(positionItem);
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    AlertDialog alert = dialog.Create();
+                    alert.SetTitle("Ошибка сохранения");
+                    alert.SetMessage("Ошибка: " + ex.Message);
+                    alert.Show();
+                    return;
                 });
-                codeInput.ClearFocus();
-                quentityInput.ClearFocus();
-                weightInput.ClearFocus();
-                isEdit = true;
             }
         }
 
@@ -508,39 +523,69 @@ namespace CMOS
 
         private void CreateOrdersData()
         {
-            ordersList = new List<Order>();
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetTableNoClothingOrderApi");
-            JObject googleSearch = JObject.Parse(json);
-            IList<JToken> results = googleSearch["data"].Children().ToList();
-            foreach (JToken result in results)
+            try
             {
-                Order searchResult = result.ToObject<Order>();
-                searchResult.PositionName = searchResult.PositionName;
-                searchResult.PercentComplited += "%";
-                searchResult.Id = "Заказ №: " + searchResult.Id;
-                searchResult.NumberTN = "ПТМЦ №: " + searchResult.NumberTN;
-                ordersList.Add(searchResult);
+                ordersList = new List<Order>();
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetTableNoClothingOrderApi");
+                JObject googleSearch = JObject.Parse(json);
+                IList<JToken> results = googleSearch["data"].Children().ToList();
+                foreach (JToken result in results)
+                {
+                    Order searchResult = result.ToObject<Order>();
+                    searchResult.PositionName = searchResult.PositionName;
+                    searchResult.PercentComplited += "%";
+                    searchResult.Id = "Заказ №: " + searchResult.Id;
+                    searchResult.NumberTN = "ПТМЦ №: " + searchResult.NumberTN;
+                    ordersList.Add(searchResult);
+                }
+                isEdit = false;
             }
-            isEdit = false;
+            catch(Exception ex)
+            {
+                RunOnUiThread(() =>
+                {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    AlertDialog alert = dialog.Create();
+                    alert.SetTitle("Сервер не отвечает");
+                    alert.SetMessage("Обратитесь к администратору" + ex.Message);
+                    alert.Show();
+                    return;
+                });
+            }
         }
 
         private void CreatePositionsData(int id)
         {
-            positionsList = new List<Position>();
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetPositionsPreorderApi/" + id.ToString());
-            JObject googleSearch = JObject.Parse(json);
-            IList<JToken> results = googleSearch["data"].Children().ToList();
-            foreach (JToken result in results)
+            try
             {
-                Position searchResult = result.ToObject<Position>();
-                positionsList.Add(searchResult);
+                positionsList = new List<Position>();
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                var json = new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/GetPositionsPreorderApi/" + id.ToString());
+                JObject googleSearch = JObject.Parse(json);
+                IList<JToken> results = googleSearch["data"].Children().ToList();
+                foreach (JToken result in results)
+                {
+                    Position searchResult = result.ToObject<Position>();
+                    positionsList.Add(searchResult);
+                }
+                positionsList.Add(new Position { Code = "", Color = "", Loading = "", Name = "", Norm = 0, Order = "", ShortName = "" });
+                isEdit = false;
             }
-            positionsList.Add(new Position { Id = 0, Code = "", Color = "", Loading = "", Name = "", Norm = 0, Order = "", Rate = 0, ShortName = "", Weight = 0 });
-            isEdit = false;
+            catch (Exception ex)
+            {
+                RunOnUiThread(() =>
+                {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    AlertDialog alert = dialog.Create();
+                    alert.SetTitle("Сервер не отвечает");
+                    alert.SetMessage("Обратитесь к администратору" + ex.Message);
+                    alert.Show();
+                    return;
+                });
+            }
         }
 
         private void InitializingOrdersList()
