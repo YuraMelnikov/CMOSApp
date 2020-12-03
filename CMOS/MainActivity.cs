@@ -27,10 +27,11 @@ namespace CMOS
         //Data
         private int maxCount;
         private string sku;
+        private string skuPart;
         private int positionItem;
         private Position pos;
         private int orderId;
-        private string partNumber;
+        private string part;
         private bool isEdit;
         private bool isShortList;
 
@@ -148,7 +149,7 @@ namespace CMOS
                 CreatePositionsData(orderId);
                 SetupPositionsRecyclerView();
             }
-            positionsList = positionsList.Where(a => a.IsWeight == true || a.Id == 0).ToList();
+            positionsList = positionsList.Where(a => a.Weight == 0.0 || a.Id == 0).ToList();
             RunOnUiThread(() => codeInput.Text = "");
             RunOnUiThread(() => quentityInput.Text = "");
             RunOnUiThread(() => weightInput.Text = "");
@@ -241,65 +242,125 @@ namespace CMOS
             _scanner.SetConfig(config);
         }
 
+        private string GetSKU(string scanDataRes)
+        {
+            //bool isNull = false;
+            char[] charArray = scanDataRes.ToCharArray();
+            string res = "";
+            for (int i = 5; i > 0; i--)
+            {
+                res += charArray[13 - i];
+            }
+            return res;
+        }
+
+        private string GetSKUPart(string scanDataRes)
+        {
+            bool isNull = false;
+            char[] charArray = scanDataRes.ToCharArray();
+            string res = "";
+            for (int i = 9; i > 5; i--)
+            {
+                if (charArray[13 - i] != '0' || isNull == true)
+                {
+                    res += charArray[13 - i];
+                    isNull = true;
+                }
+            }
+            return res;
+        }
+
         private void Scanner_Data(object sender, Scanner.DataEventArgs e)
         {
-            var scanDataCollection = e.P0;
-            if ((scanDataCollection != null) && (scanDataCollection.Result == ScannerResults.Success))
+            if(part != "")
             {
-                var scanData = scanDataCollection.GetScanData();
-                if (scanData[0].Data == null)
+                var scanDataCollection = e.P0;
+                if ((scanDataCollection != null) && (scanDataCollection.Result == ScannerResults.Success))
                 {
+                    var scanData = scanDataCollection.GetScanData();
+                    if (scanData[0].Data == null)
+                    {
+                        return;
+                    }
+                    string scanDataRes = GetSKUID(scanData[0].Data);
+                    sku = GetSKU(scanDataRes);
+                    skuPart = GetSKUPart(scanDataRes);
+                    if (part != skuPart && skuPart != "")
+                    {
+                        RunOnUiThread(() =>
+                        {
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                            AlertDialog alert = dialog.Create();
+                            alert.SetTitle("Ошибка партии");
+                            alert.SetMessage(sku + " из другой партии");
+                            alert.Show();
+                            return;
+                        });
+                    }
+                    else
+                    {
+                        try
+                        {
+                            pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
+                            positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
+                            pos.Rate++;
+                            maxCount = pos.Norm;
+                            RunOnUiThread(() => codeInput.Text = sku);
+                            RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
+                            RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
+                            isEdit = true;
+                        }
+                        catch
+                        {
+                            RunOnUiThread(() =>
+                            {
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                                AlertDialog alert = dialog.Create();
+                                alert.SetTitle("ТМЦ не найдено");
+                                alert.SetMessage(sku + " - нет/избыток");
+                                alert.Show();
+                                return;
+                            });
+                        }
+                        if (weightInput.Text == "0")
+                        {
+                            RunOnUiThread(() =>
+                            {
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                                AlertDialog alert = dialog.Create();
+                                alert.SetTitle("Масса не задана");
+                                alert.SetMessage(sku + " взвесте ТМЦ");
+                                alert.Show();
+                                return;
+                            });
+                        }
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            adapterPosition = new PositionsAdapter(positionsList);
+                            ordersRecyclerView.SetAdapter(adapterPosition);
+                            ordersRecyclerView.ScrollToPosition(positionItem);
+                        });
+                        RunOnUiThread(ProcessScan);
+                    }
+                }
+            }
+            else
+            {
+                RunOnUiThread(() =>
+                {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    AlertDialog alert = dialog.Create();
+                    alert.SetTitle("Партия не выбрана");
+                    alert.SetMessage("Нажмите на пункт партии");
+                    alert.Show();
                     return;
-                }
-                sku = GetSKUID(scanData[0].Data);
-                try
-                {
-                    pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
-                    positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
-                    pos.Rate++;
-                    maxCount = pos.Norm;
-                    RunOnUiThread(() => codeInput.Text = sku);
-                    RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
-                    RunOnUiThread(() => weightInput.Text = pos.Weight.ToString());
-                    isEdit = true;
-                }
-                catch
-                {
-                    RunOnUiThread(() =>
-                    {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                        AlertDialog alert = dialog.Create();
-                        alert.SetTitle("ТМЦ не найдено");
-                        alert.SetMessage(sku + " - нет/избыток");
-                        alert.Show();
-                        return;
-                    });
-                }
-                if (weightInput.Text == "0")
-                {
-                    RunOnUiThread(() =>
-                    {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                        AlertDialog alert = dialog.Create();
-                        alert.SetTitle("Масса не задана");
-                        alert.SetMessage(sku + " взвесте ТМЦ");
-                        alert.Show();
-                        return;
-                    });
-                }
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    adapterPosition = new PositionsAdapter(positionsList);
-                    ordersRecyclerView.SetAdapter(adapterPosition);
-                    ordersRecyclerView.ScrollToPosition(positionItem);
                 });
-                RunOnUiThread(ProcessScan);
             }
         }
 
         private string GetSKUID(string data)
         {
-            return data.Replace("D", "").Replace("01000000", "").Replace(partNumber, "");
+            return data.Replace("D", "");
         }
 
         private void ProcessScan()
@@ -416,10 +477,10 @@ namespace CMOS
 
         private void ButtonAplay_Click(object sender, EventArgs e)
         {
-            ordersRecyclerView.Visibility = ViewStates.Invisible;
+            //ordersRecyclerView.Visibility = ViewStates.Invisible;
             UpdateDataToServer();
-            InitializingOrdersList();
-            ordersRecyclerView.Visibility = ViewStates.Visible;
+            //InitializingOrdersList();
+            //ordersRecyclerView.Visibility = ViewStates.Visible;
             isEdit = false;
         }
 
@@ -448,6 +509,15 @@ namespace CMOS
                 }
             }
             isEdit = false;
+            RunOnUiThread(() =>
+            {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                AlertDialog alert = dialog.Create();
+                alert.SetTitle("Сохранено");
+                alert.SetMessage("");
+                alert.Show();
+                return;
+            });
         }
 
         private void ButtonComplited_Click(object sender, EventArgs e)
@@ -590,6 +660,7 @@ namespace CMOS
 
         private void InitializingOrdersList()
         {
+            skuPart = "";
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
@@ -614,21 +685,13 @@ namespace CMOS
             CreatePositionsData(orderId);
             SetupPositionsRecyclerView();
             numberTNForOrderlist.Text = "         " + ordersList[position].NumberTN;
-            partNumber = GetPartNumberForBarcode(ordersList[position].NumberTN);
+            part = GetPart(ordersList[position].NumberTN);
             isEdit = false;
         }
 
-        private string GetPartNumberForBarcode(string number)
+        private string GetPart(string number)
         {
-            number = number.Replace("ПТМЦ №: ", ""); 
-            if (number.Length == 1)
-                return "1000000" + number;
-            else if (number.Length == 2)
-                return "100000" + number;
-            else if (number.Length == 3)
-                return "10000" + number;
-            else
-                return "1000" + number;
+            return number.Replace("ПТМЦ №: ", "");
         }
 
         void OnPositionClick(object sender, int position)
@@ -644,7 +707,7 @@ namespace CMOS
                 ordersRecyclerView.ScrollToPosition(positionItem);
             });
             RunOnUiThread(() => codeInput.Text = pos.Code);
-            if(pos.Rate == 0)
+            if (pos.Rate == 0)
                 RunOnUiThread(() => quentityInput.Text = "");
             else
                 RunOnUiThread(() => quentityInput.Text = pos.Rate.ToString());
@@ -653,7 +716,7 @@ namespace CMOS
 
         public override bool OnKeyUp([GeneratedEnum] Keycode keyCode, KeyEvent e)
         {
-            if (keyCode == Android.Views.Keycode.Enter)
+            if (keyCode == Keycode.Enter)
                 SavePosData();
             return base.OnKeyUp(keyCode, e);
         }

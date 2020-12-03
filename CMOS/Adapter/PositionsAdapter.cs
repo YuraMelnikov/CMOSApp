@@ -33,7 +33,6 @@ namespace CMOS.Adapter
             holder.name.Text = Items[position].Name;
             holder.code.Text = Items[position].Code;
             holder.weight.Text = Items[position].Weight.ToString();
-
             if (holder.weight.Text == "0")
             {
                 holder.weight.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#910000")));
@@ -42,6 +41,12 @@ namespace CMOS.Adapter
             }
             holder.norm.Text = Items[position].Norm.ToString();
             holder.rate.Text = Items[position].Rate.ToString();
+            //if (holder.rate.Text == holder.norm.Text)
+            //{
+            //    //holder.name.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.ParseColor("#FFE0D9")));
+            //    var typeface = Typeface.Create("<FONT FAMILY NAME>", Android.Graphics.TypefaceStyle.Italic);
+            //    holder.name.Typeface = typeface;
+            //}
             if (isColor == false)
             {
                 isColor = true;
