@@ -20,7 +20,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/delete"
-                android:contentDescription="@string/descBtnClose"/>
+                android:contentDescription="@string/descBtnClose"
+                android:layout_marginRight="10.0dp"
+                android:layout_marginBottom="9.0dp"
+                android:layout_marginLeft="15.0dp"
+                android:layout_marginTop="12.0dp" />
             <TextView
                 android:id="@+id/numberTNForOrderlist"
                 android:layout_height="wrap_content"
@@ -39,7 +43,11 @@
                 android:layout_marginEnd="10sp"
                 android:layout_gravity="right"
                 android:src="@drawable/checkmark"
-                android:contentDescription="@string/descBtnApplay" />
+                android:contentDescription="@string/descBtnApplay"
+                android:layout_marginBottom="9.5dp"
+                android:layout_marginLeft="16.0dp"
+                android:layout_marginRight="23.0dp"
+                android:layout_marginTop="10.0dp" />
         </android.support.v7.widget.Toolbar>
         <RelativeLayout 
             android:layout_width="match_parent"
@@ -54,35 +62,6 @@
                 android:id="@+id/ordersRecyclerView"
                 android:layout_below="@+id/editTextCode">
             </android.support.v7.widget.RecyclerView>
-            <ImageButton
-                android:layout_marginTop="150sp"
-                android:src="@drawable/plus"
-                android:background="@null"
-                android:layout_alignParentRight="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="15sp"
-                android:id="@+id/buttonPlus" />
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/buttonPlus"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="40sp"
-                android:layout_marginEnd="15sp"
-                android:src="@drawable/minus"
-                android:background="@null"
-                android:id="@+id/buttonMinus" />
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/buttonMinus"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="80sp"
-                android:layout_marginEnd="15sp"
-                android:src="@drawable/chack"
-                android:background="@null"
-                android:id="@+id/buttonComplited" />
         </RelativeLayout>
     </LinearLayout>
     <LinearLayout
@@ -157,5 +136,4 @@
             android:text="@string/radioButtonWeight"
             android:id="@+id/radioButtonWeight" />
     </RadioGroup>
-
 </RelativeLayout>

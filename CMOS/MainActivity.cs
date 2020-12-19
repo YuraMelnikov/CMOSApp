@@ -53,9 +53,6 @@ namespace CMOS
         private EditText codeInput;
         private EditText quentityInput;
         private EditText weightInput;
-        private ImageButton buttonPlus;
-        private ImageButton buttonMinus;
-        private ImageButton buttonComplited;
         private RadioGroup radioGroupFiltering;
         private RadioButton radioButtonAll;
         private RadioButton radioButtonDef;
@@ -72,9 +69,6 @@ namespace CMOS
             ordersRecyclerView = (RecyclerView)FindViewById(Resource.Id.ordersRecyclerView);
             buttonRemove = (ImageButton)FindViewById(Resource.Id.buttonRemove);
             buttonAplay = (ImageButton)FindViewById(Resource.Id.buttonAplay);
-            buttonPlus = (ImageButton)FindViewById(Resource.Id.buttonPlus);
-            buttonMinus = (ImageButton)FindViewById(Resource.Id.buttonMinus);
-            buttonComplited = (ImageButton)FindViewById(Resource.Id.buttonComplited);
             toolbarInputData = (Android.Support.V7.Widget.Toolbar)FindViewById(Resource.Id.toolbarInputData);
             codeInput = (EditText)FindViewById(Resource.Id.codeInput);
             weightInput = (EditText)FindViewById(Resource.Id.weightInput);
@@ -91,10 +85,6 @@ namespace CMOS
             {
             }
             buttonRemove.Click += ButtonRemove_Click; 
-            buttonPlus.Click += ButtonPlus_Click;
-            buttonMinus.Click += ButtonMinus_Click;
-            buttonAplay.Click += ButtonAplay_Click;
-            buttonComplited.Click += ButtonComplited_Click;
             radioButtonAll.Click += RadioButtonAll_Click;
             radioButtonDef.Click += RadioButtonDef_Click;
             radioButtonWeight.Click += RadioButtonWeight_Click;
@@ -244,7 +234,6 @@ namespace CMOS
 
         private string GetSKU(string scanDataRes)
         {
-            //bool isNull = false;
             char[] charArray = scanDataRes.ToCharArray();
             string res = "";
             for (int i = 5; i > 0; i--)
@@ -438,49 +427,9 @@ namespace CMOS
             InitializingOrdersList();
         }
 
-        private void ButtonPlus_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                int que = Convert.ToInt32(quentityInput.Text);
-                if (que >= maxCount)
-                {
-                }
-                else
-                {
-                    que++;
-                }
-                quentityInput.Text = que.ToString();
-            }
-            catch
-            {
-                quentityInput.Text = "1";
-            }
-        }
-
-        private void ButtonMinus_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                int que = Convert.ToInt32(quentityInput.Text);
-                que--;
-                if (que <= 0)
-                    quentityInput.Text = "1";
-                else
-                    quentityInput.Text = que.ToString();
-            }
-            catch
-            {
-                quentityInput.Text = "1";
-            }
-        }
-
         private void ButtonAplay_Click(object sender, EventArgs e)
         {
-            //ordersRecyclerView.Visibility = ViewStates.Invisible;
             UpdateDataToServer();
-            //InitializingOrdersList();
-            //ordersRecyclerView.Visibility = ViewStates.Visible;
             isEdit = false;
         }
 
@@ -518,11 +467,6 @@ namespace CMOS
                 alert.Show();
                 return;
             });
-        }
-
-        private void ButtonComplited_Click(object sender, EventArgs e)
-        {
-            SavePosData();
         }
 
         private void SavePosData()
@@ -664,9 +608,6 @@ namespace CMOS
             toolbarInputData.Visibility = ViewStates.Invisible;
             buttonRemove.Visibility = ViewStates.Invisible;
             buttonAplay.Visibility = ViewStates.Invisible;
-            buttonPlus.Visibility = ViewStates.Invisible;
-            buttonMinus.Visibility = ViewStates.Invisible;
-            buttonComplited.Visibility = ViewStates.Invisible;
             radioGroupFiltering.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();

@@ -121,7 +121,6 @@ namespace CMOS.ScannerManager
 			config.ScanParams.DecodeLEDFeedback = true;
 			config.ReaderParams.ReaderSpecific.ImagerSpecific.PicklistEx = ScannerConfig.PicklistEx.Hardware;
 			config.DecoderParams.Ean13.Enabled = true;
-			//config.DecoderParams.Code128.Enabled = false;
 			_scanner.SetConfig(config);
 		}
 
