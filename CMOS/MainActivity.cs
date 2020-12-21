@@ -84,7 +84,8 @@ namespace CMOS
             catch
             {
             }
-            buttonRemove.Click += ButtonRemove_Click; 
+            buttonAplay.Click += ButtonAplay_Click;
+            buttonRemove.Click += ButtonRemove_Click;
             radioButtonAll.Click += RadioButtonAll_Click;
             radioButtonDef.Click += RadioButtonDef_Click;
             radioButtonWeight.Click += RadioButtonWeight_Click;
@@ -424,6 +425,7 @@ namespace CMOS
 
         private void ButtonRemove_Click(object sender, EventArgs e)
         {
+            buttonRemove.Visibility = ViewStates.Invisible;
             InitializingOrdersList();
         }
 
@@ -611,7 +613,7 @@ namespace CMOS
             radioGroupFiltering.Visibility = ViewStates.Invisible;
             CreateOrdersData();
             SetupOrdersRecyclerView();
-            numberTNForOrderlist.Text = "  Документы поступления";
+            numberTNForOrderlist.Text = "Документы";
             isEdit = false;
         }
 
