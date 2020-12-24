@@ -292,6 +292,7 @@ namespace CMOS
                         try
                         {
                             pos = positionsList.First(a => a.Code == sku && a.Rate < a.Norm);
+                            pos.IsUpdate = true;
                             positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
                             pos.Rate++;
                             maxCount = pos.Norm;
@@ -440,23 +441,26 @@ namespace CMOS
             int stopPosition = positionsList.Count - 1;
             for (int i = 0; i < stopPosition; i++)
             {
-                try
+                if(positionsList[i].IsUpdate == true)
                 {
-                    string link = positionsList[i].Id.ToString() + "a" + positionsList[i].Rate.ToString().Replace(".", ",") + "a" + positionsList[i].Weight.ToString().Replace(".", ",");
-                    new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
-                }
-                catch (Exception ex)
-                {
-                    ordersRecyclerView.Visibility = ViewStates.Visible;
-                    RunOnUiThread(() =>
+                    try
                     {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                        AlertDialog alert = dialog.Create();
-                        alert.SetTitle("Сервер не отвечает");
-                        alert.SetMessage("Повторите попытку" + " Ошибка: " + ex.Message);
-                        alert.Show();
-                        return;
-                    });
+                        string link = positionsList[i].Id.ToString() + "a" + positionsList[i].Rate.ToString().Replace(".", ",") + "a" + positionsList[i].Weight.ToString().Replace(".", ",");
+                        new WebClient().DownloadString("http://192.168.1.33/CMOS/CMOSS/PostPositionsPreorderApi/" + link);
+                    }
+                    catch (Exception ex)
+                    {
+                        ordersRecyclerView.Visibility = ViewStates.Visible;
+                        RunOnUiThread(() =>
+                        {
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                            AlertDialog alert = dialog.Create();
+                            alert.SetTitle("Сервер не отвечает");
+                            alert.SetMessage("Повторите попытку" + " Ошибка: " + ex.Message);
+                            alert.Show();
+                            return;
+                        });
+                    }
                 }
             }
             isEdit = false;
@@ -640,6 +644,7 @@ namespace CMOS
         void OnPositionClick(object sender, int position)
         {
             pos = positionsList[position];
+            pos.IsUpdate = true;
             maxCount = pos.Norm;
             positionItem = positionsList.FindIndex(a => a.Id == pos.Id);
             MainThread.BeginInvokeOnMainThread(() =>

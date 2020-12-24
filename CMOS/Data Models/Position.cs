@@ -2,6 +2,7 @@
 {
     public class Position
     {
+        public bool IsUpdate { get; set; }
         public bool IsWeight { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
