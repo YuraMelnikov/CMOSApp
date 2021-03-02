@@ -237,9 +237,20 @@ namespace CMOS
         {
             char[] charArray = scanDataRes.ToCharArray();
             string res = "";
-            for (int i = 5; i > 0; i--)
+
+            if(charArray.Length == 12)
             {
-                res += charArray[13 - i];
+                for (int i = 5; i > 0; i--)
+                {
+                    res += charArray[12 - i];
+                }
+            }
+            else
+            {
+                for (int i = 5; i > 0; i--)
+                {
+                    res += charArray[13 - i];
+                }
             }
             return res;
         }
@@ -249,12 +260,26 @@ namespace CMOS
             bool isNull = false;
             char[] charArray = scanDataRes.ToCharArray();
             string res = "";
-            for (int i = 9; i > 5; i--)
+            if(charArray.Length == 13)
             {
-                if (charArray[13 - i] != '0' || isNull == true)
+                for (int i = 9; i > 5; i--)
                 {
-                    res += charArray[13 - i];
-                    isNull = true;
+                    if (charArray[13 - i] != '0' || isNull == true)
+                    {
+                        res += charArray[13 - i];
+                        isNull = true;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 8; i > 5; i--)
+                {
+                    if (charArray[12 - i] != '0' || isNull == true)
+                    {
+                        res += charArray[12 - i];
+                        isNull = true;
+                    }
                 }
             }
             return res;
