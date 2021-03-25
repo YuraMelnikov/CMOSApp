@@ -131,10 +131,5 @@
             android:layout_height="wrap_content"
             android:text="@string/radioButtonDef"
             android:id="@+id/radioButtonDef" />
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/radioButtonWeight"
-            android:id="@+id/radioButtonWeight" />
     </RadioGroup>
 </RelativeLayout>

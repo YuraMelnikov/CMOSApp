@@ -123,7 +123,5 @@ namespace CMOS.ScannerManager
 			config.DecoderParams.Ean13.Enabled = true;
 			_scanner.SetConfig(config);
 		}
-
-
 	}
 }
